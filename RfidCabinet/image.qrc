@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/btn_stock_sel.png</file>
+        <file>img/btn_stock_normal.png</file>
+        <file>img/btn_pickup_sel.png</file>
+        <file>img/btn_pickup_normal.png</file>
+        <file>img/bg_img.png</file>
+    </qresource>
+</RCC>
