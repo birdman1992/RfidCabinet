@@ -27,30 +27,31 @@ SOURCES += \
         main.cpp \
         widget.cpp \
     rfidwidget.cpp \
-    rfidwidget.cpp \
     casepanel.cpp \
     Structs/userinfo.cpp \
     Structs/goodslist.cpp \
     Structs/goodscar.cpp \
     Structs/caseaddress.cpp \
-    Structs/cabinetinfo.cpp
+    Structs/cabinetinfo.cpp \
+    RfidCell/rfidarea.cpp
 
 HEADERS += \
         widget.h \
-    rfidwidget.h \
     rfidwidget.h \
     casepanel.h \
     Structs/userinfo.h \
     Structs/goodslist.h \
     Structs/goodscar.h \
     Structs/caseaddress.h \
-    Structs/cabinetinfo.h
+    Structs/cabinetinfo.h \
+    RfidCell/rfidarea.h \
+    config.h
 
 FORMS += \
         widget.ui \
     rfidwidget.ui \
-    rfidwidget.ui \
-    casepanel.ui
+    casepanel.ui \
+    RfidCell/rfidarea.ui
 
 RESOURCES += \
     image.qrc

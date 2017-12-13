@@ -5,5 +5,9 @@
         <file>img/btn_pickup_sel.png</file>
         <file>img/btn_pickup_normal.png</file>
         <file>img/bg_img.png</file>
+        <file>img/box_bg_4.jpg</file>
+        <file>img/box_bg_3.png</file>
+        <file>img/box_bg_2.png</file>
+        <file>img/box_bg_1.png</file>
     </qresource>
 </RCC>
