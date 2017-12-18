@@ -5,6 +5,7 @@
 #include <qstackedwidget.h>
 #include <QVBoxLayout>
 #include "rfidwidget.h"
+#include "device/devicemanager.h"
 
 namespace Ui {
 class Widget;
@@ -20,6 +21,8 @@ public:
 
 private:
     Ui::Widget *ui;
+    DeviceManager* devManager;
+
     RfidWidget* win_rfid;
     QStackedWidget* win_stack;
     QVBoxLayout* win_layout;

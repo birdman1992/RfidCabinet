@@ -8,6 +8,8 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint);
 
+    devManager = new DeviceManager(this);
+
     win_layout = new QVBoxLayout(this);
     win_layout->setMargin(0);
     win_layout->setSpacing(0);
@@ -17,6 +19,7 @@ Widget::Widget(QWidget *parent) :
 
     win_rfid = new RfidWidget(this);
     win_stack->addWidget(win_rfid);
+
 }
 
 Widget::~Widget()

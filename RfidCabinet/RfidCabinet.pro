@@ -33,7 +33,9 @@ SOURCES += \
     Structs/goodscar.cpp \
     Structs/caseaddress.cpp \
     Structs/cabinetinfo.cpp \
-    RfidCell/rfidarea.cpp
+    RfidCell/rfidarea.cpp \
+    device/devicemanager.cpp \
+    device/devicesimulator.cpp
 
 HEADERS += \
         widget.h \
@@ -45,13 +47,16 @@ HEADERS += \
     Structs/caseaddress.h \
     Structs/cabinetinfo.h \
     RfidCell/rfidarea.h \
-    config.h
+    config.h \
+    device/devicemanager.h \
+    device/devicesimulator.h
 
 FORMS += \
         widget.ui \
     rfidwidget.ui \
     casepanel.ui \
-    RfidCell/rfidarea.ui
+    RfidCell/rfidarea.ui \
+    device/devicesimulator.ui
 
 RESOURCES += \
     image.qrc
