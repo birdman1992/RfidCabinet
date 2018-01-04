@@ -485,6 +485,19 @@ font: 18px &quot;微软雅黑&quot;;
         <string/>
        </property>
       </widget>
+      <widget class="QPushButton" name="rfidCheck">
+       <property name="geometry">
+        <rect>
+         <x>330</x>
+         <y>130</y>
+         <width>121</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>查询</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_server">
       <attribute name="title">

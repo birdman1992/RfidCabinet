@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,7 +22,6 @@ TEMPLATE = app
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-
 SOURCES += \
         main.cpp \
         widget.cpp \
@@ -35,7 +34,15 @@ SOURCES += \
     Structs/cabinetinfo.cpp \
     RfidCell/rfidarea.cpp \
     device/devicemanager.cpp \
-    device/devicesimulator.cpp
+    device/devicesimulator.cpp \
+    device/Qextserial/qextserialport.cpp \
+    device/Qextserial/qextserialport_unix.cpp \
+    ber_test/src/hash.c \
+    device/rfiddevice.cpp \
+    ber_test/src/RfidApi.c \
+    ber_test/src/profile.c \
+    Server/httpapi.cpp \
+    Json/cJSON.c
 
 HEADERS += \
         widget.h \
@@ -49,7 +56,16 @@ HEADERS += \
     RfidCell/rfidarea.h \
     config.h \
     device/devicemanager.h \
-    device/devicesimulator.h
+    device/devicesimulator.h \
+    device/Qextserial/qextserialport.h \
+    device/Qextserial/qextserialport_p.h \
+    device/Qextserial/qextserialport_global.h \
+    ber_test/inc/profile.h \
+    ber_test/inc/hash.h \
+    device/rfiddevice.h \
+    ber_test/inc/RfidApi.h \
+    Server/httpapi.h \
+    Json/cJSON.h
 
 FORMS += \
         widget.ui \
@@ -60,3 +76,6 @@ FORMS += \
 
 RESOURCES += \
     image.qrc
+
+QMAKE_CFLAGS += -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable
+QMAKE_CXXFLAGS += -Wno-unused-variable

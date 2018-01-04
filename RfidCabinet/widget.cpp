@@ -19,6 +19,9 @@ Widget::Widget(QWidget *parent) :
 
     win_rfid = new RfidWidget(this);
     win_stack->addWidget(win_rfid);
+    connect(win_rfid, SIGNAL(doorStareChanged(bool)), devManager, SLOT(recvDoorState(bool)));
+
+//    win_stack->setCurrentIndex(0);
 
 }
 

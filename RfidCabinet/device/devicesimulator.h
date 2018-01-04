@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QButtonGroup>
+#include "device/Qextserial/qextserialport.h"
 
 namespace Ui {
 class DeviceSimulator;
@@ -23,10 +24,13 @@ private slots:
 
     void on_rfidOut_clicked();
 
+    void on_rfidCheck_clicked();
+
 signals:
     void cardReaderData(QByteArray);
     void rfidInRange(QByteArray);
     void rfidOutRange(QByteArray);
+    void rfidNeedCheck();
 
 private:
     Ui::DeviceSimulator *ui;

@@ -20,6 +20,8 @@ DeviceSimulator::~DeviceSimulator()
     delete ui;
 }
 
+
+
 void DeviceSimulator::on_card_submit_clicked()
 {
     QByteArray cardId = ui->cardId->text().toLocal8Bit();
@@ -87,3 +89,8 @@ void DeviceSimulator::initRfidGroup()
 }
 
 
+
+void DeviceSimulator::on_rfidCheck_clicked()
+{
+    emit rfidNeedCheck();
+}

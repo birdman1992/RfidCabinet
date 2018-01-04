@@ -21,6 +21,8 @@ RfidWidget::RfidWidget(QWidget *parent) :
     initMenu();
     setCabinetSize(1,1);
     readCellsInfo();
+
+//    initServer();
 }
 
 RfidWidget::~RfidWidget()
@@ -61,6 +63,26 @@ void RfidWidget::initMenu()
     menu->addButton(ui->store);
 
     menu->setExclusive(true);
+    ui->menuStack->setCurrentIndex(0);
+    setMenuPow(0);
+}
+
+void RfidWidget::setMenuPow(int _pow)
+{
+    ui->fetch->hide();
+    ui->store->hide();
+    ui->cell_config->hide();
+    switch(_pow){
+    case 0:
+        break;
+    default:
+        break;
+    }
+}
+
+void RfidWidget::initServer()
+{
+    serverHttp = new HttpApi(this);
 }
 
 void RfidWidget::creatRfidCells()
@@ -79,7 +101,7 @@ void RfidWidget::creatRfidCells()
                 rfidCell = new RfidArea(ui->rfidPanel);
                 ui->rfidPanel->setCellWidget(j,i,rfidCell);
                 listCells<<rfidCell;
-                qDebug()<<"[creat cell]"<<j<<i;
+//                qDebug()<<"[creat cell]"<<j<<i;
             }
 //            j+=ui->rfidPanel->rowSpan(j,i);
         }
@@ -112,7 +134,7 @@ bool RfidWidget::pointIsInSpan(int row, int col)
 
         if(listSpans.at(i)->contains(rectX))
         {
-            qDebug()<<rectX;
+//            qDebug()<<rectX;
             return true;
         }
     }
@@ -166,7 +188,7 @@ void RfidWidget::setCellsLayout(QByteArray cellsLayout)
         int span_y = cellsLayout.at(i+1);
         int span_w = cellsLayout.at(i+2);
         int span_h = cellsLayout.at(i+3);
-        qDebug()<<"[span]"<<cellsLayout.at(i)<<cellsLayout.at(i+1)<<cellsLayout.at(i+2)<<cellsLayout.at(i+3);
+//        qDebug()<<"[span]"<<cellsLayout.at(i)<<cellsLayout.at(i+1)<<cellsLayout.at(i+2)<<cellsLayout.at(i+3);
         ui->rfidPanel->setSpan(span_y, span_x, span_h, span_w);
         listSpans<<new QRectF(span_x, span_y, span_w, span_h);
     }
@@ -265,7 +287,7 @@ void RfidWidget::on_rfidPanel_clicked(const QModelIndex &index)
         return;
     }
 
-    qDebug()<<"[span]"<<spanX<<spanY<<spanColNum<<spanRowNum;
+//    qDebug()<<"[span]"<<spanX<<spanY<<spanColNum<<spanRowNum;
     ui->rfidPanel->setSpan(spanY, spanX, spanRowNum, spanColNum);
     listSpans<<new QRectF(spanX, spanY, spanColNum, spanRowNum);
     spanX = -1;
@@ -304,4 +326,17 @@ void RfidWidget::on_clear_config_clicked()
         listSpans.clear();
     }
     menuUnlock();
+}
+
+void RfidWidget::on_test_open_clicked(bool checked)
+{
+    if(checked)//开门
+    {
+        ui->test_open->setText("关门");
+    }
+    else
+    {
+        ui->test_open->setText("开门模拟");
+    }
+    emit doorStareChanged(checked);
 }

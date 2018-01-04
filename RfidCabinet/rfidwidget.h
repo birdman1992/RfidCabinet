@@ -6,6 +6,8 @@
 #include <QButtonGroup>
 #include <QModelIndex>
 #include "RfidCell/rfidarea.h"
+#include "device/rfiddevice.h"
+#include "Server/httpapi.h"
 #include <QList>
 #include <QRect>
 
@@ -49,6 +51,11 @@ private slots:
 
     void on_clear_config_clicked();
 
+    void on_test_open_clicked(bool checked);
+
+signals:
+    void doorStareChanged(bool isOpen);
+
 private:
     Ui::RfidWidget *ui;
     int rowCount;
@@ -60,8 +67,11 @@ private:
     QButtonGroup* menu;
     QList<RfidArea*> listCells;
     QList<QRectF*> listSpans;
+    HttpApi* serverHttp;//服务端http接口
 
     void initMenu();
+    void setMenuPow(int _pow);//设置菜单权限等级
+    void initServer();//初始化服务端通信
     void creatRfidCells();
     bool pointIsInSpan(int row, int col);
     void rfidCellClear();
