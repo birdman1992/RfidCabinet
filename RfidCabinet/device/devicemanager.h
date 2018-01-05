@@ -2,9 +2,11 @@
 #define DEVICEMANAGER_H
 
 #include <QObject>
+#include <QList>
 #include "devicesimulator.h"
 #include "Qextserial/qextserialport.h"
 #include "device/rfiddevice.h"
+#include "Structs/rfidchangeinfo.h"
 
 class DeviceManager : public QObject
 {
@@ -20,6 +22,8 @@ private:
     QextSerialPort *comCtrlInit(QString devName, int baudRate, int dataBits, int Parity, int stopBits);
 
 signals:
+    void rfidIn(QList<rfidChangeInfo*>);
+    void rfidOut(QList<rfidChangeInfo*>);
 
 public slots:
     void recvDoorState(bool isopen);

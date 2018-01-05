@@ -13,7 +13,7 @@ HttpApi::HttpApi(QObject *parent) : QObject(parent)
     reply_token = NULL;
     reply_delete = NULL;
 //    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpReply(QNetworkReply*)));
-    getToken("13787419941","123456");
+//    getToken("13787419941","123456");
 }
 
 void HttpApi::getToken(QString userName, QString passWd)
@@ -54,6 +54,11 @@ void HttpApi::deleteToken()
 //    reply_delete = manager->deleteResource(request);
     reply_delete = manager->sendCustomRequest(request,QByteArray("DELETE"));
     connect(reply_delete, SIGNAL(readyRead()), this, SLOT(replyDeleteToken()));
+}
+
+void HttpApi::rfidStore(int antId, QByteArray rfid)
+{
+
 }
 
 void HttpApi::httpReply(QNetworkReply *reply)

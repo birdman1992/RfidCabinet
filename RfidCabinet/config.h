@@ -10,7 +10,7 @@
 #define DEV_RFID_PC "/dev/ttyUSB1"  //PC串口调试RFID
 
 #define FILE_CONFIG_CABINET_LAYOUT "/home/config/cabinet.layout"
-
+#define FILE_CONFIG_REP "/home/config/"
 
 
 #endif // CONFIG_H

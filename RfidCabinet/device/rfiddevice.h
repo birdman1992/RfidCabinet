@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QThread>
 #include <QByteArray>
+#include <QList>
+#include "Structs/rfidchangeinfo.h"
 //struct RFID_DATA;
 
 
@@ -18,10 +20,13 @@ public:
     void stopScan();
 private:
     void run();
+
     bool runFlag;
+    QList<rfidChangeInfo*> inList;
+    QList<rfidChangeInfo*> outList;
 signals:
-    void rfidIn(int antId,QByteArray rfid);
-    void rfidOut(int antId,QByteArray rfid);
+    void rfidIn(QList<rfidChangeInfo*>);
+    void rfidOut(QList<rfidChangeInfo*>);
 
 public slots:
 //    int rfidScan();

@@ -1,0 +1,29 @@
+#ifndef REPERTORYMANAGER_H
+#define REPERTORYMANAGER_H
+
+#include <QObject>
+#include <QSettings>
+#include <QStringList>
+#include "Structs/cabinetinfo.h"
+
+class RepertoryManager : public QObject
+{
+    Q_OBJECT
+public:
+    explicit RepertoryManager(QObject *parent = NULL);
+    void rfidIn(int antId, GoodsInfo info, QByteArray rfid);//物品放入
+    void rfidOut(int antId, QString goodsId, QByteArray rfid);
+
+private:
+    QString getRepFile(int antId);
+    int rfidAppend(QString& rfids, QString rfid);
+    int rfidRemove(QString& rfids, QString rfid);
+
+
+
+signals:
+
+public slots:
+};
+
+#endif // REPERTORYMANAGER_H

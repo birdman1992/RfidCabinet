@@ -42,7 +42,9 @@ SOURCES += \
     ber_test/src/RfidApi.c \
     ber_test/src/profile.c \
     Server/httpapi.cpp \
-    Json/cJSON.c
+    Json/cJSON.c \
+    device/repertorymanager.cpp \
+    Structs/rfidchangeinfo.cpp
 
 HEADERS += \
         widget.h \
@@ -65,7 +67,9 @@ HEADERS += \
     device/rfiddevice.h \
     ber_test/inc/RfidApi.h \
     Server/httpapi.h \
-    Json/cJSON.h
+    Json/cJSON.h \
+    device/repertorymanager.h \
+    Structs/rfidchangeinfo.h
 
 FORMS += \
         widget.ui \

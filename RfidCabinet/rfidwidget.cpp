@@ -17,12 +17,11 @@ RfidWidget::RfidWidget(QWidget *parent) :
     colCount = 1;
     spanX = -1;
     spanY = -1;
+    repManager = new RepertoryManager(this);
 
     initMenu();
     setCabinetSize(1,1);
     readCellsInfo();
-
-//    initServer();
 }
 
 RfidWidget::~RfidWidget()
@@ -42,7 +41,21 @@ void RfidWidget::setCabinetSize(int widNum, int heiNum)
     qDebug()<<ui->rfidPanel->width()<<ui->rfidPanel->height();
 //    ui->rfidPanel->setSpan(0,0,2,2);
 //    RfidArea* rfidCase = new RfidArea(ui->rfidPanel);
-//    ui->rfidPanel->setCellWidget(0,0,rfidCase);
+    //    ui->rfidPanel->setCellWidget(0,0,rfidCase);
+}
+
+void RfidWidget::rfidIn(int antId, QByteArray rfid)
+{
+    RfidArea* cell = antsMap.value(antId,NULL);
+    if(cell == NULL)
+        return;
+
+
+}
+
+void RfidWidget::rfidOut(int antId, QByteArray rfid)
+{
+
 }
 
 void RfidWidget::paintEvent(QPaintEvent*)
@@ -80,11 +93,6 @@ void RfidWidget::setMenuPow(int _pow)
     }
 }
 
-void RfidWidget::initServer()
-{
-    serverHttp = new HttpApi(this);
-}
-
 void RfidWidget::creatRfidCells()
 {
     int i=0;//列
@@ -101,6 +109,9 @@ void RfidWidget::creatRfidCells()
                 rfidCell = new RfidArea(ui->rfidPanel);
                 ui->rfidPanel->setCellWidget(j,i,rfidCell);
                 listCells<<rfidCell;
+                antsMap.insert(listCells.count(), rfidCell);
+                rfidCell->setAntId(listCells.count());
+                rfidCell->updateInfo();
 //                qDebug()<<"[creat cell]"<<j<<i;
             }
 //            j+=ui->rfidPanel->rowSpan(j,i);

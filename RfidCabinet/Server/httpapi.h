@@ -26,6 +26,7 @@ private:
 signals:
 
 public slots:
+    void rfidStore(int antId, QByteArray rfid);
 
 private slots:
     void httpReply(QNetworkReply*);

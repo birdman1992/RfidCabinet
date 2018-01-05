@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include "rfidwidget.h"
 #include "device/devicemanager.h"
+#include "Server/httpapi.h"
 
 namespace Ui {
 class Widget;
@@ -19,10 +20,12 @@ public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
 
+    void initServer();
 private:
     Ui::Widget *ui;
     DeviceManager* devManager;
 
+    HttpApi* serverHttp;
     RfidWidget* win_rfid;
     QStackedWidget* win_stack;
     QVBoxLayout* win_layout;

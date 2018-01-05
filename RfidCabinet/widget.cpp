@@ -8,7 +8,10 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint);
 
+    initServer();
+
     devManager = new DeviceManager(this);
+//    connect(devManager, SIGNAL(rfidIn(int,QByteArray)), serverHttp, SLOT(rfidStore(int,QByteArray)));
 
     win_layout = new QVBoxLayout(this);
     win_layout->setMargin(0);
@@ -28,4 +31,9 @@ Widget::Widget(QWidget *parent) :
 Widget::~Widget()
 {
     delete ui;
+}
+
+void Widget::initServer()
+{
+    serverHttp = new HttpApi(this);
 }

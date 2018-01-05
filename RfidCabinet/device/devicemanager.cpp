@@ -8,10 +8,9 @@ DeviceManager::DeviceManager(QObject *parent) : QObject(parent)
 {
 #ifndef RUN_IN_ARM
     win_controler = new DeviceSimulator();
-    deviceInit();
     win_controler->show();
 #endif
-
+    deviceInit();
 }
 
 DeviceManager::~DeviceManager()
@@ -22,6 +21,8 @@ DeviceManager::~DeviceManager()
 void DeviceManager::deviceInit()
 {
     devRfid = new RfidDevice(this);
+    connect(devRfid, SIGNAL(rfidIn(QList<rfidChangeInfo*>)), this, SIGNAL(rfidIn(QList<rfidChangeInfo*>)));
+    connect(devRfid, SIGNAL(rfidOut(QList<rfidChangeInfo*>)), this, SIGNAL(rfidOut(QList<rfidChangeInfo*>)));
 }
 
 
@@ -80,10 +81,8 @@ QextSerialPort* DeviceManager::comCtrlInit(QString devName, int baudRate, int da
 
 void DeviceManager::recvDoorState(bool isopen)
 {
-    if(isopen)
+    if(!isopen)
         devRfid->startScan();
-    else
-        devRfid->stopScan();
 }
 
 
