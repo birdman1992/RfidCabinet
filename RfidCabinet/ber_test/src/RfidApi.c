@@ -176,7 +176,7 @@ int EpcProcess(RFID_DATA *epc, unsigned char* buf,int ant,time_t seconds)
 		memcpy(id,&buf[7],12);
 		if((local=GetHashTablePos(id, RfidHash,MHI,12)) == 0)	// not storage
 		{
-            printf("GetHashTablePos:%d\n",local);
+//            printf("GetHashTablePos:%d\n",local);
 			local = InsertHash(id, RfidHash,MHI,12);
 			
 			DataLink = (RFID_DATA*)malloc(sizeof(RFID_DATA));
@@ -193,7 +193,7 @@ int EpcProcess(RFID_DATA *epc, unsigned char* buf,int ant,time_t seconds)
 		}
 		else if(rInfo[local].ant_num == ant)		// ant channel same
         {
-            printf("GetHashTablePos:%d\n",local);
+//            printf("GetHashTablePos:%d\n",local);
             rInfo[local].index = seconds;		// update time
         }
 
@@ -238,7 +238,7 @@ int GetEpc(RFID_DATA *epc)
 			DataLink->next = epc->next;
 			epc->next = DataLink;
 			DelHashTablePos(rInfo[i].epc, RfidHash,MHI,12);
-            printf("DelHashTablePos:%d\n",i);
+//            printf("DelHashTablePos:%d\n",i);
 			rInfo[i].index  = 0;
 		}
 	}

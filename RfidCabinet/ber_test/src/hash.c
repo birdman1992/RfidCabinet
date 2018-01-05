@@ -25,6 +25,17 @@ void CryptTables()
     }
 }
 
+void hexPrintf(unsigned char* str)
+{
+    int i = 0;
+    while(i<12)
+    {
+        printf("%02x ",(char)*(str+i));
+        i++;
+    }
+    printf("\n");
+}
+
 unsigned long HashString(unsigned char *lpszFileName, unsigned int dwHashType,int len)
 {
     unsigned char *key  = lpszFileName;
@@ -64,6 +75,7 @@ int InsertHash(unsigned char *lpszString, struct HashItem *lpTable, unsigned int
     unsigned long nHashB = HashString(lpszString, HASH_B,len);
     unsigned long nHashStart = nHash % nTableSize;
     unsigned long nHashPos = nHashStart;
+
     while (lpTable[nHashPos].bExists)
     {
         nHashPos = (nHashPos + 1) % nTableSize;
@@ -84,6 +96,7 @@ int GetHashTablePos(unsigned char *lpszString,struct HashItem* lpTable, unsigned
     unsigned long nHashB = HashString(lpszString, HASH_B,len);
     unsigned long nHashStart = nHash % nTableSize;
 	unsigned long nHashPos = nHashStart;
+
     while (lpTable[nHashPos].bExists)
     {
         if (lpTable[nHashPos].nHashA == nHashA && lpTable[nHashPos].nHashB == nHashB)
@@ -99,15 +112,15 @@ int GetHashTablePos(unsigned char *lpszString,struct HashItem* lpTable, unsigned
 int DelHashTablePos(unsigned char *lpszString,struct HashItem* lpTable, unsigned int nTableSize,int len)
 {
     int HASH_OFFSET = 0, HASH_A = 1, HASH_B = 2;
-    unsigned int nHash = HashString(lpszString, HASH_OFFSET,len);
-    unsigned int nHashA = HashString(lpszString, HASH_A,len);
-    unsigned int nHashB = HashString(lpszString, HASH_B,len);
-    unsigned int nHashStart = nHash % nTableSize, nHashPos = nHashStart;
+    unsigned long nHash = HashString(lpszString, HASH_OFFSET,len);
+    unsigned long nHashA = HashString(lpszString, HASH_A,len);
+    unsigned long nHashB = HashString(lpszString, HASH_B,len);
+    unsigned long nHashStart = nHash % nTableSize, nHashPos = nHashStart;
 
     while (lpTable[nHashPos].bExists)
     {
         if (lpTable[nHashPos].nHashA == nHashA && lpTable[nHashPos].nHashB == nHashB)
-        {    printf("del hash\n");
+        {
 			lpTable[nHashPos].bExists=0;
 			lpTable[nHashPos].nHashA=0;
 			lpTable[nHashPos].nHashB=0;
