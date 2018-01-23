@@ -3,6 +3,7 @@
 #include <qgraphicseffect.h>
 #include <QPainter>
 #include <QString>
+#include <QDebug>
 #include "config.h"
 
 RfidArea::RfidArea(QWidget *parent) :
@@ -54,6 +55,7 @@ QString RfidArea::getShowStr()
         settings.beginGroup(goodsId);
         showStr+=QString("%1×%2\n").arg(settings.value("name").toString()).arg(settings.value("num").toString());
     }
+    qDebug()<<"[getShowStr]"<<showStr;
     return showStr;
 }
 

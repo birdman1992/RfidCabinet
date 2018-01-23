@@ -188,6 +188,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <height>65</height>
                 </size>
                </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
                <property name="text">
                 <string>开门模拟</string>
                </property>

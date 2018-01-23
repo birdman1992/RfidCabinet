@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QTableWidget>
 #include <QMessageBox>
+#include <QHeaderView>
 
 #include "config.h"
 
@@ -35,8 +36,8 @@ void RfidWidget::setCabinetSize(int widNum, int heiNum)
     ui->rfidPanel->setColumnCount(widNum);
     ui->rfidPanel->setRowCount(heiNum);
 
-    ui->rfidPanel->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-    ui->rfidPanel->verticalHeader()->setResizeMode(QHeaderView::Stretch);
+    ui->rfidPanel->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->rfidPanel->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     qDebug()<<ui->rfidPanel->width()<<ui->rfidPanel->height();
 //    ui->rfidPanel->setSpan(0,0,2,2);
@@ -44,13 +45,18 @@ void RfidWidget::setCabinetSize(int widNum, int heiNum)
     //    ui->rfidPanel->setCellWidget(0,0,rfidCase);
 }
 
-void RfidWidget::rfidIn(int antId, QByteArray rfid)
+void RfidWidget::rfidIn(QList<GoodsInfo *> listStore)
 {
-    RfidArea* cell = antsMap.value(antId,NULL);
-    if(cell == NULL)
-        return;
+    GoodsInfo* info;
+    foreach(info, listStore)
+    {
+        RfidArea* cell = antsMap.value(info->antId,NULL);
+        if(cell == NULL)
+            return;
 
-
+        repManager->rfidIn(info);
+        cell->updateInfo();
+    }
 }
 
 void RfidWidget::rfidOut(int antId, QByteArray rfid)

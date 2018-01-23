@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <qstringlist.h>
+#include "Structs/rfidchangeinfo.h"
+#include "Structs/cabinetinfo.h"
 
 class HttpApi : public QObject
 {
@@ -14,6 +17,7 @@ public:
 private:
     QString token;
     bool needToken;
+    QStringList listGoodsName;
 
     QNetworkAccessManager* manager;
     QNetworkReply* reply_token;
@@ -24,9 +28,10 @@ private:
     void deleteToken();
 
 signals:
+    void newStoreList(QList<GoodsInfo*>);
 
 public slots:
-    void rfidStore(int antId, QByteArray rfid);
+    void rfidStore(QList<rfidChangeInfo *>);
 
 private slots:
     void httpReply(QNetworkReply*);

@@ -12,6 +12,7 @@ HttpApi::HttpApi(QObject *parent) : QObject(parent)
     manager = new QNetworkAccessManager(this);
     reply_token = NULL;
     reply_delete = NULL;
+    listGoodsName<<"松质骨螺钉"<<"微型螺钉"<<"踝骨螺钉"<<"肋骨固定钉"<<"微导管"<<"导丝"<<"亲水涂层导丝(HiWire)"<<"血液透析器"<<"空心纤维血液透析滤过器"<<"一次性使用包皮吻合器"<<"环扎去除包皮专用器械"<<"心电电极片";
 //    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(httpReply(QNetworkReply*)));
 //    getToken("13787419941","123456");
 }
@@ -56,9 +57,22 @@ void HttpApi::deleteToken()
     connect(reply_delete, SIGNAL(readyRead()), this, SLOT(replyDeleteToken()));
 }
 
-void HttpApi::rfidStore(int antId, QByteArray rfid)
+void HttpApi::rfidStore(QList<rfidChangeInfo*> listStore)
 {
 
+    rfidChangeInfo* info;
+    QList<GoodsInfo*> listInfo;
+    foreach(info, listStore)
+    {
+        GoodsInfo* gInfo = new GoodsInfo();
+        gInfo->antId = info->antId;
+        gInfo->name = listGoodsName.at(info->rfid.at(7) % 12);
+        gInfo->rfid = QString(info->rfid.toHex());
+        qDebug()<<"[rfidStore]"<<gInfo->antId<<gInfo->name<<info->rfid.toHex();
+        listInfo<<gInfo;
+    }
+    qDeleteAll(listStore.begin(), listStore.end());
+    emit newStoreList(listInfo);
 }
 
 void HttpApi::httpReply(QNetworkReply *reply)

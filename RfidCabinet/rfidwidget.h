@@ -9,6 +9,7 @@
 #include "device/rfiddevice.h"
 #include "Server/httpapi.h"
 #include "device/repertorymanager.h"
+#include "Structs/cabinetinfo.h"
 #include <QList>
 #include <QRect>
 #include <qmap.h>
@@ -27,7 +28,7 @@ public:
 
 public slots:
     void setCabinetSize(int widNum, int heiNum);
-    void rfidIn(int,QByteArray);
+    void rfidIn(QList<GoodsInfo*>);
     void rfidOut(int,QByteArray);
 
 protected:

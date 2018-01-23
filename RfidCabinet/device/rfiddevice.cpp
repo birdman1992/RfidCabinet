@@ -120,13 +120,13 @@ void RfidDevice::run()
     if(!inList.isEmpty())
     {
         emit rfidIn(inList);
-        qDebug()<<"[RFID in]"<<inList;
+//        qDebug()<<"[RFID in]"<<inList;
         inList.clear();
     }
     if(!outList.isEmpty())
     {
         emit rfidOut(outList);
-        qDebug()<<"[RFID out]"<<outList;
+//        qDebug()<<"[RFID out]"<<outList;
         outList.clear();
     }
     qDebug()<<"[RfidDevice]:scan finished.";

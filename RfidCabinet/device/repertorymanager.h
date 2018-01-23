@@ -11,7 +11,7 @@ class RepertoryManager : public QObject
     Q_OBJECT
 public:
     explicit RepertoryManager(QObject *parent = NULL);
-    void rfidIn(int antId, GoodsInfo info, QByteArray rfid);//物品放入
+    void rfidIn(GoodsInfo *info);//物品放入
     void rfidOut(int antId, QString goodsId, QByteArray rfid);
 
 private:

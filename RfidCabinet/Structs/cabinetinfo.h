@@ -17,10 +17,12 @@ public:
     QString name;//耗材名
     QString id;//耗材id
     QString packageId;
+    QString rfid;
     QString unit;//计数单位
     int goodsType;//打包规格
     int num;//耗材数量
     int outNum;//取出数量
+    int antId;
     QString Py;
 };
 

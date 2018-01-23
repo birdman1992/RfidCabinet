@@ -1,23 +1,26 @@
 #include "repertorymanager.h"
 #include "config.h"
+#include <QDebug>
 
 RepertoryManager::RepertoryManager(QObject *parent) : QObject(parent)
 {
 
 }
 
-void RepertoryManager::rfidIn(int antId, GoodsInfo info, QByteArray rfid)
+void RepertoryManager::rfidIn(GoodsInfo* info)
 {
-    if(rfid.isEmpty())
+    qDebug()<<info->rfid;
+    if(info->rfid.isEmpty())
         return;
-
-    QSettings settings(getRepFile(antId), QSettings::IniFormat);
-    settings.beginGroup(info.id);
-    settings.setValue("name",info.name);
-    settings.setValue("abbname",info.abbName);
+    qDebug()<<"[rfidIn]"<<info->rfid<<info->name<<info->rfid;
+    QSettings settings(getRepFile(info->antId), QSettings::IniFormat);
+    settings.beginGroup(info->name);
+    settings.setValue("name",info->name);
+    settings.setValue("abbname",info->abbName);
     QString rfids = settings.value("rfids", QString()).toString();
-    int goodsCount  = rfidAppend(rfids,QString(rfid));
+    int goodsCount  = rfidAppend(rfids,QString(info->rfid));
     settings.setValue("num",goodsCount);
+    settings.setValue("rfids",rfids);
     settings.endGroup();
     settings.sync();
 }
@@ -54,6 +57,7 @@ int RepertoryManager::rfidAppend(QString& rfids, QString rfid)
         rfidList<<rfid;
         rfids = rfidList.join(" ");
     }
+    qDebug()<<"[rfidAppend]"<<rfidList.count();
     return rfidList.count();
 }
 
