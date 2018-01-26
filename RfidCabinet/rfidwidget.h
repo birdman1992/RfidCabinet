@@ -13,6 +13,8 @@
 #include <QList>
 #include <QRect>
 #include <qmap.h>
+#include <QStringList>
+#include <QTableWidget>
 
 namespace Ui {
 class RfidWidget;
@@ -27,25 +29,20 @@ public:
     ~RfidWidget();
 
 public slots:
-    void setCabinetSize(int widNum, int heiNum);
     void rfidIn(QList<GoodsInfo*>);
     void rfidOut(int,QByteArray);
 
 protected:
     void paintEvent(QPaintEvent *);
 private slots:
-    void on_row_add_clicked();
-    void on_row_red_clicked();
-    void on_col_add_clicked();
-    void on_col_red_clicked();
     void on_save_clicked();
-    void on_span_toggled(bool checked);
     void on_rfidPanel_clicked(const QModelIndex &index);
-    void on_span_cancel_clicked();
     void on_back_clicked();
     void on_cell_config_clicked();
     void on_clear_config_clicked();
     void on_test_open_clicked(bool checked);
+
+    void on_cabType_currentTextChanged(const QString &arg1);
 
 signals:
     void doorStareChanged(bool isOpen);
@@ -65,16 +62,17 @@ private:
     RepertoryManager* repManager;
 
     void initMenu();
+    void initCabType(QStringList typeList);//初始化柜子类型
     void setMenuPow(int _pow);//设置菜单权限等级
     void creatRfidCells();
     bool pointIsInSpan(int row, int col);
     void rfidCellClear();
     void menuLock();
     void menuUnlock();
-    void setCellsLayout(QByteArray cellsLayout);
-    QByteArray getCellsLayout();
     void saveCellsInfo();
     void readCellsInfo();
+    void cabSplit(QString scale, QTableWidget *table);
+    int getBaseCount(QString scale);
 };
 
 #endif // RFIDWIDGET_H
