@@ -10,6 +10,12 @@
     <height>902</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -393,7 +399,7 @@ font: 20px &quot;微软雅黑&quot;;
                     <set>QAbstractItemView::NoEditTriggers</set>
                    </property>
                    <property name="selectionMode">
-                    <enum>QAbstractItemView::NoSelection</enum>
+                    <enum>QAbstractItemView::SingleSelection</enum>
                    </property>
                    <property name="columnCount">
                     <number>1</number>
@@ -528,12 +534,25 @@ font: 20px &quot;微软雅黑&quot;;
          <item>
           <widget class="QStackedWidget" name="stackedWidget">
            <property name="styleSheet">
-            <string notr="true">#page{background-color: rgba(255, 255, 255, 0);}</string>
+            <string notr="true">#pageCab{background-color: rgba(255, 255, 255, 0);}
+QTableWidget{background-color: rgba(255, 255, 255, 0);}</string>
            </property>
            <widget class="QWidget" name="pageCab">
+            <property name="styleSheet">
+             <string notr="true">QTableWidget:item{
+	margin-left:5px;
+	margin-right:5px;
+	margin-top:5px;
+	margin-bottom:5px;
+	background-color: rgb(62, 155, 255);
+}</string>
+            </property>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <property name="spacing">
               <number>0</number>
+             </property>
+             <property name="sizeConstraint">
+              <enum>QLayout::SetDefaultConstraint</enum>
              </property>
              <property name="leftMargin">
               <number>20</number>
@@ -548,7 +567,43 @@ font: 20px &quot;微软雅黑&quot;;
               <number>20</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="cabLayout"/>
+              <widget class="QFrame" name="cabLayout">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>1284</width>
+                 <height>690</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>1284</width>
+                 <height>690</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_3">
+                <property name="spacing">
+                 <number>3</number>
+                </property>
+                <property name="topMargin">
+                 <number>6</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>6</number>
+                </property>
+               </layout>
+              </widget>
              </item>
             </layout>
            </widget>

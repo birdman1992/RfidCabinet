@@ -15,6 +15,7 @@
 #include <qmap.h>
 #include <QStringList>
 #include <QTableWidget>
+#include <QPoint>
 
 namespace Ui {
 class RfidWidget;
@@ -44,6 +45,12 @@ private slots:
 
     void on_cabType_currentTextChanged(const QString &arg1);
 
+    void on_preCab_clicked(const QModelIndex &index);
+
+    void on_addCab_clicked();
+
+    void on_delCab_clicked();
+
 signals:
     void doorStareChanged(bool isOpen);
 
@@ -52,12 +59,15 @@ private:
     int rowCount;
     int colCount;
     bool onSpan;
+    bool needSelScreen;
+    QPoint screenPos;
     int spanX;
     int spanY;
 
     QButtonGroup* menu;
+    QList<QTableWidget*> listCabinet;
+    QStringList listLayout;
     QList<RfidArea*> listCells;
-    QList<QRectF*> listSpans;
     QMap<int, RfidArea*> antsMap;
     RepertoryManager* repManager;
 
@@ -65,7 +75,6 @@ private:
     void initCabType(QStringList typeList);//初始化柜子类型
     void setMenuPow(int _pow);//设置菜单权限等级
     void creatRfidCells();
-    bool pointIsInSpan(int row, int col);
     void rfidCellClear();
     void menuLock();
     void menuUnlock();

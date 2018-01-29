@@ -5,6 +5,7 @@
 #include <QTableWidget>
 #include <QMessageBox>
 #include <QHeaderView>
+#include <QSettings>
 
 #include "config.h"
 
@@ -19,10 +20,11 @@ RfidWidget::RfidWidget(QWidget *parent) :
     spanX = -1;
     spanY = -1;
     repManager = new RepertoryManager(this);
+    screenPos = QPoint(-1,-1);
 
     initMenu();
     initCabType(QString(CAB_TYPE).split("#"));
-    readCellsInfo();
+    creatRfidCells();
 }
 
 RfidWidget::~RfidWidget()
@@ -94,34 +96,68 @@ void RfidWidget::setMenuPow(int _pow)
 
 void RfidWidget::creatRfidCells()
 {
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
+    QString strLayout = settings.value("layout", QString()).toString();
+    if(strLayout.isEmpty())
+        return;
+    listLayout = strLayout.split("#");
 
-}
+    QStringList strScreenPos = settings.value("screenPos", QString()).toString().split(",");
+    if(strScreenPos.count() != 2)
+        return;
 
-bool RfidWidget::pointIsInSpan(int row, int col)
-{
-    int i=0;
+    bool ok;
+    screenPos.setX(strScreenPos.at(0).toInt(&ok));
+    if(!ok)
+        return;
+    screenPos.setY(strScreenPos.at(1).toInt(&ok));
+    if(!ok)
+        return;
 
-    for(i=0; i<listSpans.count(); i++)
+
+    if((listCabinet.count() != listLayout.count()) && (listCabinet.count()>0))
+        qDebug()<<"[creatRfidCells]:fomat error.";
+
+    if(listCabinet.isEmpty())
     {
-        QPointF X = QPointF(col,row);
-        QPointF A = listSpans.at(i)->topLeft();
-//        QPointF B = listSpans.at(i)->topRight();
-//        QPointF C = listSpans.at(i)->bottomLeft();
-//        QPointF D = listSpans.at(i)->bottomRight();
+        int i=0;
+        for(i=0; i<listLayout.count(); i++)
+        {qDebug()<<i<<listLayout.count();
+            QTableWidget* tab = new QTableWidget();
+            tab->setShowGrid(false);
+            tab->setSelectionMode(QAbstractItemView::NoSelection);
+            tab->resize(10,ui->cabLayout->geometry().height()-12);
 
-//        qDebug()<<A<<X;
-        QRectF rectX = QRectF(X, QSizeF(1,1));
+            ui->cabLayout->layout()->addWidget(tab);
+            cabSplit(ui->cabType->currentText(), tab);
+            listCabinet<<tab;
+        }
+        needSelScreen = false;
+        QTableWidgetItem* item = new QTableWidgetItem();
+        item->setBackgroundColor(QColor(62, 155, 255));
+        listCabinet[screenPos.x()]->setItem(screenPos.y(),0,item);
+    }
 
-        if(X==A)
-            return false;
-
-        if(listSpans.at(i)->contains(rectX))
+    int i=0;
+    int j=0;
+    for(i=0; i<listCabinet.count(); i++)
+    {
+        for(j=0; j<listCabinet.at(i)->rowCount(); j++)
         {
-//            qDebug()<<rectX;
-            return true;
+            if((i==screenPos.x()) && ( j==screenPos.y()))
+                continue;
+            RfidArea* area = new RfidArea;
+            listCabinet[i]->setCellWidget(j, 0, area);
         }
     }
-    return false;
+}
+
+void RfidWidget::saveCellsInfo()
+{
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
+    settings.setValue("layout",listLayout.join("#"));
+    settings.setValue("screenPos",QString("%1,%2").arg(screenPos.x()).arg(screenPos.y()));
+    settings.sync();
 }
 
 void RfidWidget::rfidCellClear()
@@ -140,31 +176,21 @@ void RfidWidget::menuUnlock()
 
 }
 
-void RfidWidget::saveCellsInfo()
-{
-    QFile fLayout(FILE_CONFIG_CABINET_LAYOUT);
-    fLayout.open(QFile::WriteOnly);
-//    QByteArray cellsInfo = getCellsLayout();
-//    qDebug()<<"[saveCellsInfo]"<<cellsInfo.toHex();
-//    fLayout.write(cellsInfo.toHex());
-    fLayout.close();
-}
-
 void RfidWidget::readCellsInfo()
 {
-    QFile fLayout(FILE_CONFIG_CABINET_LAYOUT);
-    if(!fLayout.exists())
-        return;
-    fLayout.open(QFile::ReadOnly);
-    QByteArray cellsInfo = QByteArray::fromHex(fLayout.readAll());
-    qDebug()<<"[readCellsInfo]"<<cellsInfo.toHex();
+//    QFile fLayout(FILE_CONFIG_CABINET_LAYOUT);
+//    if(!fLayout.exists())
+//        return;
+//    fLayout.open(QFile::ReadOnly);
+//    QByteArray cellsInfo = QByteArray::fromHex(fLayout.readAll());
+//    qDebug()<<"[readCellsInfo]"<<cellsInfo.toHex();
 //    setCellsLayout(cellsInfo);
 }
 
 void RfidWidget::on_save_clicked()
 {
-    creatRfidCells();
     saveCellsInfo();
+    creatRfidCells();
 }
 
 void RfidWidget::on_rfidPanel_clicked(const QModelIndex &index)
@@ -184,7 +210,13 @@ void RfidWidget::on_cell_config_clicked()
 
 void RfidWidget::on_clear_config_clicked()
 {
-    menuUnlock();
+    if(!listLayout.isEmpty())
+        listLayout.clear();
+    if(!listCabinet.isEmpty())
+    {
+        qDeleteAll(listCabinet.begin(), listCabinet.end());
+        listCabinet.clear();
+    }
 }
 
 void RfidWidget::on_test_open_clicked(bool checked)
@@ -243,4 +275,67 @@ int RfidWidget::getBaseCount(QString scale)
         ret += scale.mid(i,1).toInt();
     }
     return ret;
+}
+
+void RfidWidget::on_preCab_clicked(const QModelIndex &index)
+{
+    qDebug()<<index.row()<<index.column();
+    if(!needSelScreen)
+    {
+        ui->preCab->clearSelection();
+        return;
+    }
+
+    if(index.row() == screenPos.y())
+    {
+        ui->preCab->clearSelection();
+        screenPos.setY(-1);
+        screenPos.setX(-1);
+        return;
+    }
+
+    screenPos.setY(index.row());
+}
+
+void RfidWidget::on_addCab_clicked()
+{
+    QTableWidget* tab = new QTableWidget();
+    tab->setSelectionMode(QAbstractItemView::NoSelection);
+    tab->resize(10,ui->cabLayout->geometry().height()-12);
+
+    ui->cabLayout->layout()->addWidget(tab);
+    cabSplit(ui->cabType->currentText(), tab);
+    listLayout<<ui->cabType->currentText();
+    listCabinet<<tab;
+
+    if((screenPos.y() >= 0) && needSelScreen)//已经选择了屏幕位置
+    {
+        needSelScreen = false;
+        screenPos.setX(listLayout.count()-1);
+        qDebug()<<"[screen]"<<screenPos.y();
+        QTableWidgetItem* item = new QTableWidgetItem();
+        item->setBackgroundColor(QColor(62, 155, 255));
+        tab->setItem(screenPos.y(),0,item);
+        ui->preCab->clearSelection();
+        ui->warnSrePos->setVisible(false);
+    }
+}
+
+void RfidWidget::on_delCab_clicked()
+{
+    if(listCabinet.isEmpty() || listLayout.isEmpty())
+        return;
+
+    QTableWidget* tab = listCabinet.takeLast();
+    ui->cabLayout->layout()->removeWidget(tab);
+    delete tab;
+    tab = NULL;
+    listLayout.removeLast();
+    if(listCabinet.count() <= screenPos.x())
+    {
+        needSelScreen = true;
+        screenPos.setX(-1);
+        screenPos.setY(-1);
+        ui->warnSrePos->setVisible(true);
+    }
 }
