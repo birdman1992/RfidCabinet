@@ -79,6 +79,12 @@ void RfidWidget::initCabType(QStringList typeList)
     ui->cabType->setCurrentIndex(0);
 }
 
+QString RfidWidget::cellStyle(QColor rgb)
+{
+    QString ret = QString("color:rgb(255,255,255);background-color: rgb(%1, %2, %3);margin-top:5px;margin-bottom:5px;").arg(rgb.red()).arg(rgb.green()).arg(rgb.blue());
+    return ret;
+}
+
 void RfidWidget::setMenuPow(int _pow)
 {
     ui->fetch->hide();
@@ -114,42 +120,30 @@ void RfidWidget::creatRfidCells()
     if(!ok)
         return;
 
-
-    if((listCabinet.count() != listLayout.count()) && (listCabinet.count()>0))
-        qDebug()<<"[creatRfidCells]:fomat error.";
-
-    if(listCabinet.isEmpty())
-    {
-        int i=0;
-        for(i=0; i<listLayout.count(); i++)
-        {qDebug()<<i<<listLayout.count();
-            QTableWidget* tab = new QTableWidget();
-            tab->setShowGrid(false);
-            tab->setSelectionMode(QAbstractItemView::NoSelection);
-            tab->resize(10,ui->cabLayout->geometry().height()-12);
-
-            ui->cabLayout->layout()->addWidget(tab);
-            cabSplit(ui->cabType->currentText(), tab);
-            listCabinet<<tab;
-        }
-        needSelScreen = false;
-        QTableWidgetItem* item = new QTableWidgetItem();
-        item->setBackgroundColor(QColor(62, 155, 255));
-        listCabinet[screenPos.x()]->setItem(screenPos.y(),0,item);
-    }
-
     int i=0;
-    int j=0;
-    for(i=0; i<listCabinet.count(); i++)
+    for(i=0; i<listLayout.count(); i++)
     {
-        for(j=0; j<listCabinet.at(i)->rowCount(); j++)
-        {
-            if((i==screenPos.x()) && ( j==screenPos.y()))
-                continue;
-            RfidArea* area = new RfidArea;
-            listCabinet[i]->setCellWidget(j, 0, area);
-        }
+        Cabinet* cab = new Cabinet(listLayout.at(i), i);
+        ui->cabLayout->layout()->addWidget(cab);
+        listCabinet<<cab;
     }
+    needSelScreen = false;
+    listCabinet[screenPos.x()]->setScreenPos(screenPos);
+
+//    int i=0;
+//    int j=0;
+//    for(i=0; i<listCabinet.count(); i++)
+//    {
+//        for(j=0; j<listCabinet.at(i)->rowCount(); j++)
+//        {
+//            if((i==screenPos.x()) && ( j==screenPos.y()))
+//            {
+//                continue;
+//            }
+//            RfidArea* area = new RfidArea;
+//            listCabinet[i]->setCellWidget(j, 0, area);
+//        }
+//    }
 }
 
 void RfidWidget::saveCellsInfo()
@@ -190,6 +184,8 @@ void RfidWidget::readCellsInfo()
 void RfidWidget::on_save_clicked()
 {
     saveCellsInfo();
+    qDeleteAll(listTab.begin(), listTab.end());
+    listTab.clear();
     creatRfidCells();
 }
 
@@ -217,6 +213,9 @@ void RfidWidget::on_clear_config_clicked()
         qDeleteAll(listCabinet.begin(), listCabinet.end());
         listCabinet.clear();
     }
+    needSelScreen = true;
+    screenPos.setX(-1);
+    screenPos.setY(-1);
 }
 
 void RfidWidget::on_test_open_clicked(bool checked)
@@ -263,6 +262,16 @@ void RfidWidget::cabSplit(QString scale, QTableWidget *table)
     }
 }
 
+void RfidWidget::cabGridVisible(bool show)
+{
+    int i=0;
+
+    for(i=0; i<listCabinet.count(); i++)
+    {
+        listCabinet[i]->setShowGrid(show);
+    }
+}
+
 int RfidWidget::getBaseCount(QString scale)
 {
     int i = 0;
@@ -299,20 +308,19 @@ void RfidWidget::on_preCab_clicked(const QModelIndex &index)
 
 void RfidWidget::on_addCab_clicked()
 {
-    QTableWidget* tab = new QTableWidget();
-    tab->setSelectionMode(QAbstractItemView::NoSelection);
+    QTableWidget* tab = new QTableWidget(ui->cabLayout);
+    tab->setSelectionMode(QAbstractItemView::SingleSelection);
     tab->resize(10,ui->cabLayout->geometry().height()-12);
 
     ui->cabLayout->layout()->addWidget(tab);
     cabSplit(ui->cabType->currentText(), tab);
     listLayout<<ui->cabType->currentText();
-    listCabinet<<tab;
+    listTab<<tab;
 
     if((screenPos.y() >= 0) && needSelScreen)//已经选择了屏幕位置
     {
         needSelScreen = false;
         screenPos.setX(listLayout.count()-1);
-        qDebug()<<"[screen]"<<screenPos.y();
         QTableWidgetItem* item = new QTableWidgetItem();
         item->setBackgroundColor(QColor(62, 155, 255));
         tab->setItem(screenPos.y(),0,item);
@@ -323,15 +331,15 @@ void RfidWidget::on_addCab_clicked()
 
 void RfidWidget::on_delCab_clicked()
 {
-    if(listCabinet.isEmpty() || listLayout.isEmpty())
+    if(listTab.isEmpty() || listLayout.isEmpty())
         return;
 
-    QTableWidget* tab = listCabinet.takeLast();
+    QTableWidget* tab = listTab.takeLast();
     ui->cabLayout->layout()->removeWidget(tab);
     delete tab;
     tab = NULL;
     listLayout.removeLast();
-    if(listCabinet.count() <= screenPos.x())
+    if(listTab.count() <= screenPos.x())
     {
         needSelScreen = true;
         screenPos.setX(-1);

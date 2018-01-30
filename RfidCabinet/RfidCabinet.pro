@@ -44,7 +44,8 @@ SOURCES += \
     Server/httpapi.cpp \
     Json/cJSON.c \
     device/repertorymanager.cpp \
-    Structs/rfidchangeinfo.cpp
+    Structs/rfidchangeinfo.cpp \
+    RfidCell/cabinet.cpp
 
 HEADERS += \
         widget.h \
@@ -69,7 +70,8 @@ HEADERS += \
     Server/httpapi.h \
     Json/cJSON.h \
     device/repertorymanager.h \
-    Structs/rfidchangeinfo.h
+    Structs/rfidchangeinfo.h \
+    RfidCell/cabinet.h
 
 FORMS += \
         widget.ui \

@@ -10,6 +10,7 @@
 #include "Server/httpapi.h"
 #include "device/repertorymanager.h"
 #include "Structs/cabinetinfo.h"
+#include "RfidCell/cabinet.h"
 #include <QList>
 #include <QRect>
 #include <qmap.h>
@@ -65,7 +66,8 @@ private:
     int spanY;
 
     QButtonGroup* menu;
-    QList<QTableWidget*> listCabinet;
+    QList<Cabinet*> listCabinet;
+    QList<QTableWidget*> listTab;
     QStringList listLayout;
     QList<RfidArea*> listCells;
     QMap<int, RfidArea*> antsMap;
@@ -81,7 +83,9 @@ private:
     void saveCellsInfo();
     void readCellsInfo();
     void cabSplit(QString scale, QTableWidget *table);
+    void cabGridVisible(bool show);
     int getBaseCount(QString scale);
+    QString cellStyle(QColor rgb);
 };
 
 #endif // RFIDWIDGET_H

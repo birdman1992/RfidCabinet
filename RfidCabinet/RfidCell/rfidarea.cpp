@@ -36,6 +36,12 @@ void RfidArea::setAntId(int id)
     antId = id;
 }
 
+void RfidArea::setBackColor(QColor c)
+{
+    QString ret = QString("color:rgb(255,255,255);background-color: rgb(%1, %2, %3);").arg(c.red()).arg(c.green()).arg(c.blue());
+    ui->infoLab->setStyleSheet(ret);
+}
+
 void RfidArea::updateInfo()
 {
     ui->infoLab->setText(getShowStr());

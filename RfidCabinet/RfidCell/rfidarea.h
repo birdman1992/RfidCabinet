@@ -18,6 +18,7 @@ public:
     explicit RfidArea(QWidget *parent = 0);
     ~RfidArea();
     void setAntId(int id);
+    void setBackColor(QColor c);
     void updateInfo();
     QString getShowStr();
 
