@@ -32,18 +32,43 @@ RfidWidget::~RfidWidget()
     delete ui;
 }
 
-void RfidWidget::rfidIn(QList<GoodsInfo *> listStore)
+void RfidWidget::goodsIn(QList<GoodsInfo *> listStore)
 {
     GoodsInfo* info;
     foreach(info, listStore)
     {
-        RfidArea* cell = antsMap.value(info->antId,NULL);
-        if(cell == NULL)
-            return;
+        if(!checkPos(info->pos))
+        {
+            qDebug()<<"[goodsIn]"<<"goods pos out of range.";
+        }
+        RfidArea* cell = listCabinet[info->pos.x()]->areaAt(info->pos.y());
 
         repManager->rfidIn(info);
         cell->updateInfo();
     }
+}
+
+void RfidWidget::rfidIn(QList<rfidChangeInfo *> listStore)
+{
+    rfidChangeInfo* info;
+    QList<rfidChangeInfo *> list_store;
+
+    foreach(info, listStore)
+    {
+        RfidAnt* ant = antsMap.value(info->antId, NULL);
+        if(ant == NULL)
+            return;
+
+        if(ant->addId(QString(info->rfid)))
+        {
+//            info->pos.setX(ant->getPos().x());
+//            info->pos.setY(ant->getPos().y());
+            info->pos = ant->getPos();
+            list_store<<info;
+        }
+    }
+    if(!list_store.isEmpty())
+        emit rfidStoreReq(list_store);
 }
 
 void RfidWidget::rfidOut(int antId, QByteArray rfid)
@@ -73,6 +98,24 @@ void RfidWidget::initMenu()
     setMenuPow(1);
 }
 
+void RfidWidget::initAnt()
+{
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
+    QStringList list_ants;
+
+    settings.beginGroup("Ants");
+    list_ants = settings.childGroups();
+    if(list_ants.isEmpty())
+    {
+        creatDeafultAnts();
+    }
+    else
+    {
+        qDebug("initAnt");
+    }
+    creatAntsMap();
+}
+
 void RfidWidget::initCabType(QStringList typeList)
 {
     ui->cabType->addItems(typeList);
@@ -83,6 +126,17 @@ QString RfidWidget::cellStyle(QColor rgb)
 {
     QString ret = QString("color:rgb(255,255,255);background-color: rgb(%1, %2, %3);margin-top:5px;margin-bottom:5px;").arg(rgb.red()).arg(rgb.green()).arg(rgb.blue());
     return ret;
+}
+
+//判断pos是否超出柜格范围
+bool RfidWidget::checkPos(QPoint pos)
+{
+    if(pos.x()>=listCabinet.count())
+        return false;
+    if(pos.y()>=listCabinet[pos.x()]->rowCount())
+        return false;
+
+    return true;
 }
 
 void RfidWidget::setMenuPow(int _pow)
@@ -130,6 +184,8 @@ void RfidWidget::creatRfidCells()
     needSelScreen = false;
     listCabinet[screenPos.x()]->setScreenPos(screenPos);
 
+    initAnt();
+
 //    int i=0;
 //    int j=0;
 //    for(i=0; i<listCabinet.count(); i++)
@@ -143,7 +199,41 @@ void RfidWidget::creatRfidCells()
 //            RfidArea* area = new RfidArea;
 //            listCabinet[i]->setCellWidget(j, 0, area);
 //        }
-//    }
+    //    }
+}
+
+void RfidWidget::creatDeafultAnts()
+{
+    if(listCabinet.isEmpty())
+        return;
+
+    int antId = 0;
+    int i=0;
+    int j=0;
+    for(i=0; i<listCabinet.count(); i++)
+    {
+        for(j=0; j<listCabinet.at(i)->rowCount(); j++)
+        {
+            RfidAnt* ant = new RfidAnt(antId, listCabinet[i]->areaAt(j)) ;
+            antId++;
+            listAnt<<ant;
+        }
+    }
+}
+
+void RfidWidget::creatAntsMap()
+{
+    if(listAnt.isEmpty())
+        return;
+
+    if(!antsMap.isEmpty())
+        antsMap.clear();
+
+    RfidAnt* ant;
+    foreach(ant, listAnt)
+    {
+        antsMap.insert(ant->getAntId(), ant);
+    }
 }
 
 void RfidWidget::saveCellsInfo()

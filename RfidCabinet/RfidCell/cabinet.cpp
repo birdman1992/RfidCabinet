@@ -42,7 +42,7 @@ void Cabinet::initCabinet()
     int j=0;
     for(j=0; j<this->rowCount(); j++)
     {
-        RfidArea* area = new RfidArea;
+        RfidArea* area = new RfidArea(QPoint(colNum, j));
         this->setCellWidget(j, 0, area);
         list_area<<area;
     }

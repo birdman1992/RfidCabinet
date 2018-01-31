@@ -3,6 +3,7 @@
 #include <QString>
 #include <QList>
 #include <QFont>
+#include <QPoint>
 
 class GoodsInfo
 {
@@ -23,6 +24,7 @@ public:
     int num;//耗材数量
     int outNum;//取出数量
     int antId;
+    QPoint pos;
     QString Py;
 };
 

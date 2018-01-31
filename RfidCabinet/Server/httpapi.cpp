@@ -68,6 +68,7 @@ void HttpApi::rfidStore(QList<rfidChangeInfo*> listStore)
         gInfo->antId = info->antId;
         gInfo->name = listGoodsName.at(info->rfid.at(7) % 12);
         gInfo->rfid = QString(info->rfid.toHex());
+        gInfo->pos = info->pos;
         qDebug()<<"[rfidStore]"<<gInfo->antId<<gInfo->name<<info->rfid.toHex();
         listInfo<<gInfo;
     }

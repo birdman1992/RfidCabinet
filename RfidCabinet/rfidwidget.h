@@ -5,6 +5,7 @@
 #include <QPaintEvent>
 #include <QButtonGroup>
 #include <QModelIndex>
+#include "device/rfidant.h"
 #include "RfidCell/rfidarea.h"
 #include "device/rfiddevice.h"
 #include "Server/httpapi.h"
@@ -31,7 +32,8 @@ public:
     ~RfidWidget();
 
 public slots:
-    void rfidIn(QList<GoodsInfo*>);
+    void goodsIn(QList<GoodsInfo*>);
+    void rfidIn(QList<rfidChangeInfo*>);
     void rfidOut(int,QByteArray);
 
 protected:
@@ -54,6 +56,7 @@ private slots:
 
 signals:
     void doorStareChanged(bool isOpen);
+    void rfidStoreReq(QList<rfidChangeInfo*>);
 
 private:
     Ui::RfidWidget *ui;
@@ -66,17 +69,21 @@ private:
     int spanY;
 
     QButtonGroup* menu;
+    QList<RfidAnt*> listAnt;
     QList<Cabinet*> listCabinet;
     QList<QTableWidget*> listTab;
     QStringList listLayout;
     QList<RfidArea*> listCells;
-    QMap<int, RfidArea*> antsMap;
+    QMap<int, RfidAnt*> antsMap;
     RepertoryManager* repManager;
 
     void initMenu();
+    void initAnt();//初始化天线
     void initCabType(QStringList typeList);//初始化柜子类型
     void setMenuPow(int _pow);//设置菜单权限等级
     void creatRfidCells();
+    void creatDeafultAnts();
+    void creatAntsMap();
     void rfidCellClear();
     void menuLock();
     void menuUnlock();
@@ -86,6 +93,7 @@ private:
     void cabGridVisible(bool show);
     int getBaseCount(QString scale);
     QString cellStyle(QColor rgb);
+    bool checkPos(QPoint pos);
 };
 
 #endif // RFIDWIDGET_H

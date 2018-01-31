@@ -15,7 +15,7 @@ public:
     void rfidOut(int antId, QString goodsId, QByteArray rfid);
 
 private:
-    QString getRepFile(int antId);
+    QString getRepFile(QPoint pos);
     int rfidAppend(QString& rfids, QString rfid);
     int rfidRemove(QString& rfids, QString rfid);
 

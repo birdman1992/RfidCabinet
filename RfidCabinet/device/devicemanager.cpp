@@ -9,13 +9,18 @@ DeviceManager::DeviceManager(QObject *parent) : QObject(parent)
 #ifndef RUN_IN_ARM
     win_controler = new DeviceSimulator();
     win_controler->show();
+    connect(win_controler, SIGNAL(rfidIn(QList<rfidChangeInfo*>)), this, SIGNAL(rfidIn(QList<rfidChangeInfo*>)));
+    connect(win_controler, SIGNAL(rfidOut(QList<rfidChangeInfo*>)), this, SIGNAL(rfidOut(QList<rfidChangeInfo*>)));
 #endif
     deviceInit();
 }
 
 DeviceManager::~DeviceManager()
 {
+#ifndef RUN_IN_ARM
     delete win_controler;
+#endif
+    delete devRfid;
 }
 
 void DeviceManager::deviceInit()

@@ -9,15 +9,15 @@ RepertoryManager::RepertoryManager(QObject *parent) : QObject(parent)
 
 void RepertoryManager::rfidIn(GoodsInfo* info)
 {
-    qDebug()<<info->rfid;
     if(info->rfid.isEmpty())
         return;
-    qDebug()<<"[rfidIn]"<<info->rfid<<info->name<<info->rfid;
-    QSettings settings(getRepFile(info->antId), QSettings::IniFormat);
+    qDebug()<<"[RepertoryManager::rfidIn]"<<info->rfid<<info->name;
+    QSettings settings(getRepFile(info->pos), QSettings::IniFormat);
     settings.beginGroup(info->name);
     settings.setValue("name",info->name);
     settings.setValue("abbname",info->abbName);
     QString rfids = settings.value("rfids", QString()).toString();
+    qDebug()<<rfids;
     int goodsCount  = rfidAppend(rfids,QString(info->rfid));
     settings.setValue("num",goodsCount);
     settings.setValue("rfids",rfids);
@@ -30,27 +30,27 @@ void RepertoryManager::rfidOut(int antId, QString goodsId, QByteArray rfid)
     if(rfid.isEmpty())
         return;
 
-    QSettings settings(getRepFile(antId), QSettings::IniFormat);
-    QStringList goodsIdList = settings.childGroups();
-    if(goodsIdList.indexOf(QString(rfid)) == -1)
-        return;
+//    QSettings settings(getRepFile(antId), QSettings::IniFormat);
+//    QStringList goodsIdList = settings.childGroups();
+//    if(goodsIdList.indexOf(QString(rfid)) == -1)
+//        return;
 
-    settings.beginGroup(goodsId);
-    QString rfids = settings.value("rfids", QString()).toString();
-    int goodsCount = rfidRemove(rfids, QString(rfid));
-    settings.setValue("num",goodsCount);
-    settings.endGroup();
-    settings.sync();
+//    settings.beginGroup(goodsId);
+//    QString rfids = settings.value("rfids", QString()).toString();
+//    int goodsCount = rfidRemove(rfids, QString(rfid));
+//    settings.setValue("num",goodsCount);
+//    settings.endGroup();
+//    settings.sync();
 }
 
-QString RepertoryManager::getRepFile(int antId)
+QString RepertoryManager::getRepFile(QPoint pos)
 {
-    return QString(FILE_CONFIG_REP) + QString("%1.rep").arg(antId);
+        return QString(FILE_CONFIG_REP) + QString("%1#%2.rep").arg(pos.x()).arg(pos.y());
 }
 
 int RepertoryManager::rfidAppend(QString& rfids, QString rfid)
 {
-    QStringList rfidList = rfids.split(" ");
+    QStringList rfidList = rfids.split(" ", QString::SkipEmptyParts);
     int index = rfidList.indexOf(rfid);
     if(index == -1)
     {

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QButtonGroup>
 #include "device/Qextserial/qextserialport.h"
+#include "Structs/rfidchangeinfo.h"
 
 namespace Ui {
 class DeviceSimulator;
@@ -28,8 +29,10 @@ private slots:
 
 signals:
     void cardReaderData(QByteArray);
-    void rfidInRange(QByteArray);
-    void rfidOutRange(QByteArray);
+//    void rfidInRange(QByteArray);
+//    void rfidOutRange(QByteArray);
+    void rfidIn(QList<rfidChangeInfo*>);
+    void rfidOut(QList<rfidChangeInfo*>);
     void rfidNeedCheck();
 
 private:

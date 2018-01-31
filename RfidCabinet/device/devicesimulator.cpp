@@ -20,8 +20,6 @@ DeviceSimulator::~DeviceSimulator()
     delete ui;
 }
 
-
-
 void DeviceSimulator::on_card_submit_clicked()
 {
     QByteArray cardId = ui->cardId->text().toLocal8Bit();
@@ -31,15 +29,19 @@ void DeviceSimulator::on_card_submit_clicked()
 
 void DeviceSimulator::on_rfidIn_clicked()
 {
-    QByteArray Rfid = ui->rfid->text().toLocal8Bit();
-    emit rfidInRange(Rfid);
+    QByteArray Rfid = QByteArray::fromHex(ui->rfid->text().toLocal8Bit());
+    QList<rfidChangeInfo*> list_info;
+    list_info<<new rfidChangeInfo(ui->antId->currentIndex(), Rfid);
+    emit rfidIn(list_info);
     saveInfoToButton(QString(Rfid), group_rfid);
 }
 
 void DeviceSimulator::on_rfidOut_clicked()
 {
     QByteArray Rfid = ui->rfid->text().toLocal8Bit();
-    emit rfidInRange(Rfid);
+    QList<rfidChangeInfo*> list_info;
+    list_info<<new rfidChangeInfo(ui->antId->currentIndex(), Rfid);
+    emit rfidOut(list_info);
     saveInfoToButton(QString(Rfid), group_rfid);
 }
 

@@ -6,7 +6,7 @@
 #include <QDebug>
 #include "config.h"
 
-RfidArea::RfidArea(QWidget *parent) :
+RfidArea::RfidArea(QPoint pos, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RfidArea)
 {
@@ -15,6 +15,8 @@ RfidArea::RfidArea(QWidget *parent) :
     shadow_effect->setOffset(0,0);
     shadow_effect->setColor(Qt::black);
     shadow_effect->setBlurRadius(8);
+    areaPos.setX(pos.x());
+    areaPos.setY(pos.y());
     font = new QFont("微软雅黑");
     font->setPixelSize(15);
     this->setFont(*font);
@@ -26,9 +28,14 @@ RfidArea::~RfidArea()
     delete ui;
 }
 
-QString RfidArea::getRepFile(int antId)
+QPoint RfidArea::getPos()
 {
-    return QString(FILE_CONFIG_REP) + QString("%1.rep").arg(antId);
+    return areaPos;
+}
+
+QString RfidArea::getRepFile()
+{
+    return QString(FILE_CONFIG_REP) + QString("%1#%2.rep").arg(areaPos.x()).arg(areaPos.y());
 }
 
 void RfidArea::setAntId(int id)
@@ -44,12 +51,13 @@ void RfidArea::setBackColor(QColor c)
 
 void RfidArea::updateInfo()
 {
+    qDebug()<<"[updateInfo]"<<areaPos;
     ui->infoLab->setText(getShowStr());
 }
 
 QString RfidArea::getShowStr()
 {
-    QSettings settings(getRepFile(antId), QSettings::IniFormat);
+    QSettings settings(getRepFile(), QSettings::IniFormat);
     QStringList rfidList = settings.childGroups();
     if(rfidList.isEmpty())
         return QString();

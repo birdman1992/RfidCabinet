@@ -45,7 +45,8 @@ SOURCES += \
     Json/cJSON.c \
     device/repertorymanager.cpp \
     Structs/rfidchangeinfo.cpp \
-    RfidCell/cabinet.cpp
+    RfidCell/cabinet.cpp \
+    device/rfidant.cpp
 
 HEADERS += \
         widget.h \
@@ -71,7 +72,8 @@ HEADERS += \
     Json/cJSON.h \
     device/repertorymanager.h \
     Structs/rfidchangeinfo.h \
-    RfidCell/cabinet.h
+    RfidCell/cabinet.h \
+    device/rfidant.h
 
 FORMS += \
         widget.ui \
