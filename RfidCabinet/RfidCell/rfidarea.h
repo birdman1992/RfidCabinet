@@ -22,6 +22,7 @@ public:
     void setAntId(int id);
     void setBackColor(QColor c);
     void updateInfo();
+    void readAreaData();
     QString getShowStr();
 
     QStringList list_id;
@@ -35,6 +36,12 @@ private:
     int antId;
 
     QString getRepFile();
+    QStringList addId(QStringList list);
+    QStringList removeId(QStringList list);
+    bool addId(QString _id);
+    bool removeId(QString _id);
+    QStringList sameList(QStringList newList, QStringList fixList);
+    QStringList diffList(QStringList newList, QStringList fixList);
 };
 
 #endif // RFIDAREA_H

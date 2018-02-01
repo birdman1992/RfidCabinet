@@ -12,7 +12,7 @@ class RepertoryManager : public QObject
 public:
     explicit RepertoryManager(QObject *parent = NULL);
     void rfidIn(GoodsInfo *info);//物品放入
-    void rfidOut(int antId, QString goodsId, QByteArray rfid);
+    void rfidOut(GoodsInfo *info);
 
 private:
     QString getRepFile(QPoint pos);

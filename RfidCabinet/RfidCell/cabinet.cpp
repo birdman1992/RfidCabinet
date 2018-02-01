@@ -73,7 +73,7 @@ void Cabinet::cabSplit(QString scale)
     this->setRowCount(rowCount);
     this->setColumnCount(1);
 
-    this->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    this->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     this->verticalHeader()->setVisible(false);
     this->horizontalHeader()->setVisible(false);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

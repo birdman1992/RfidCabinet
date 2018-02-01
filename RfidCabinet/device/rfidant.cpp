@@ -8,7 +8,7 @@ RfidAnt::RfidAnt(int _antId, RfidArea *_area, QObject *parent) :
     area = _area;
 }
 
-QStringList RfidAnt::addId(QStringList& list)
+QStringList RfidAnt::addId(QStringList list)
 {
     QStringList ret = diffList(list, area->list_id);
     area->list_id<<ret;
@@ -30,6 +30,7 @@ QStringList RfidAnt::removeId(QStringList list)
 
 bool RfidAnt::addId(QString _id)
 {
+    qDebug()<<"addId"<<_id<<area->list_id;
     if(area->list_id.indexOf(_id) != -1)
     {
         return false;
@@ -41,6 +42,7 @@ bool RfidAnt::addId(QString _id)
 bool RfidAnt::removeId(QString _id)
 {
     int index = area->list_id.indexOf(_id);
+    qDebug()<<"removeId"<<_id<<area->list_id;
     if(index == -1)
         return false;
     area->list_id.removeAt(index);
@@ -77,7 +79,7 @@ QStringList RfidAnt::diffList(QStringList newList, QStringList fixList)
             tar<<str;
         }
     }
-    if(tar.isEmpty())
+    if(!tar.isEmpty())
     {
         qDebug()<<"[diffList]"<<ret.count()<<"/"<<newList.count();
         qDebug()<<tar;

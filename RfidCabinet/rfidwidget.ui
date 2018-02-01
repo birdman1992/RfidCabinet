@@ -121,7 +121,12 @@
          <item>
           <widget class="QStackedWidget" name="menuStack">
            <property name="styleSheet">
-            <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+            <string notr="true">#menuStack{
+background-color: rgba(255, 255, 255, 0);
+}
+QWidget{
+background-color: rgba(255, 255, 255, 0);
+}</string>
            </property>
            <property name="currentIndex">
             <number>1</number>

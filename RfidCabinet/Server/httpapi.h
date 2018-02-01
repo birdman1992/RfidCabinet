@@ -29,9 +29,11 @@ private:
 
 signals:
     void newStoreList(QList<GoodsInfo*>);
+    void newFetchList(QList<GoodsInfo*>);
 
 public slots:
     void rfidStore(QList<rfidChangeInfo *>);
+    void rfidFetch(QList<rfidChangeInfo *>);
 
 private slots:
     void httpReply(QNetworkReply*);

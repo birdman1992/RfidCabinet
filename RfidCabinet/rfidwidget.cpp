@@ -25,6 +25,7 @@ RfidWidget::RfidWidget(QWidget *parent) :
     initMenu();
     initCabType(QString(CAB_TYPE).split("#"));
     creatRfidCells();
+    readCellsData();
 }
 
 RfidWidget::~RfidWidget()
@@ -48,6 +49,22 @@ void RfidWidget::goodsIn(QList<GoodsInfo *> listStore)
     }
 }
 
+void RfidWidget::goodsOut(QList<GoodsInfo *>listFetch)
+{
+    GoodsInfo* info;
+    foreach(info, listFetch)
+    {
+        if(!checkPos(info->pos))
+        {
+            qDebug()<<"[goodsIn]"<<"goods pos out of range.";
+        }
+        RfidArea* cell = listCabinet[info->pos.x()]->areaAt(info->pos.y());
+
+        repManager->rfidOut(info);
+        cell->updateInfo();
+    }
+}
+
 void RfidWidget::rfidIn(QList<rfidChangeInfo *> listStore)
 {
     rfidChangeInfo* info;
@@ -59,7 +76,7 @@ void RfidWidget::rfidIn(QList<rfidChangeInfo *> listStore)
         if(ant == NULL)
             return;
 
-        if(ant->addId(QString(info->rfid)))
+        if(ant->addId(QString(info->rfid.toHex())))
         {
 //            info->pos.setX(ant->getPos().x());
 //            info->pos.setY(ant->getPos().y());
@@ -71,9 +88,29 @@ void RfidWidget::rfidIn(QList<rfidChangeInfo *> listStore)
         emit rfidStoreReq(list_store);
 }
 
-void RfidWidget::rfidOut(int antId, QByteArray rfid)
+void RfidWidget::rfidOut(QList<rfidChangeInfo *> listFetch)
 {
+    rfidChangeInfo* info;
+    QList<rfidChangeInfo *> list_fetch;
+    qDebug()<<"rfidFetchReq";
 
+    foreach(info, listFetch)
+    {
+        RfidAnt* ant = antsMap.value(info->antId, NULL);
+        if(ant == NULL)
+            return;
+
+        if(ant->removeId(QString(info->rfid.toHex())))
+        {
+//            info->pos.setX(ant->getPos().x());
+//            info->pos.setY(ant->getPos().y());
+            info->pos = ant->getPos();
+            list_fetch<<info;
+        }
+    }
+    if(!list_fetch.isEmpty()){
+        emit rfidFetchReq(list_fetch);
+    }
 }
 
 void RfidWidget::paintEvent(QPaintEvent*)
@@ -137,6 +174,22 @@ bool RfidWidget::checkPos(QPoint pos)
         return false;
 
     return true;
+}
+
+void RfidWidget::readCellsData()
+{
+    Cabinet* cab;
+    int i=0;
+
+    foreach(cab, listCabinet)
+    {
+        for(i=0; i<cab->rowCount(); i++)
+        {
+            RfidArea* area = cab->areaAt(i);
+            area->readAreaData();
+            area->updateInfo();
+        }
+    }
 }
 
 void RfidWidget::setMenuPow(int _pow)
@@ -279,11 +332,6 @@ void RfidWidget::on_save_clicked()
     creatRfidCells();
 }
 
-void RfidWidget::on_rfidPanel_clicked(const QModelIndex &index)
-{
-
-}
-
 void RfidWidget::on_back_clicked()
 {
     ui->menuStack->setCurrentIndex(0);
@@ -321,10 +369,10 @@ void RfidWidget::on_test_open_clicked(bool checked)
     emit doorStareChanged(checked);
 }
 
-void RfidWidget::on_cabType_currentTextChanged(const QString &arg1)
-{
-    cabSplit(arg1, ui->preCab);
-}
+//void RfidWidget::on_cabType_currentTextChanged(const QString &arg1)
+//{
+//    cabSplit(arg1, ui->preCab);
+//}
 
 void RfidWidget::cabSplit(QString scale, QTableWidget *table)
 {
@@ -339,7 +387,7 @@ void RfidWidget::cabSplit(QString scale, QTableWidget *table)
     table->setRowCount(rowCount);
     table->setColumnCount(1);
 
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     table->verticalHeader()->setVisible(false);
     table->horizontalHeader()->setVisible(false);
     table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -436,4 +484,9 @@ void RfidWidget::on_delCab_clicked()
         screenPos.setY(-1);
         ui->warnSrePos->setVisible(true);
     }
+}
+
+void RfidWidget::on_cabType_currentIndexChanged(const QString &arg1)
+{
+    cabSplit(arg1, ui->preCab);
 }

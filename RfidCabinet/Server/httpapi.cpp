@@ -59,7 +59,6 @@ void HttpApi::deleteToken()
 
 void HttpApi::rfidStore(QList<rfidChangeInfo*> listStore)
 {
-
     rfidChangeInfo* info;
     QList<GoodsInfo*> listInfo;
     foreach(info, listStore)
@@ -74,6 +73,24 @@ void HttpApi::rfidStore(QList<rfidChangeInfo*> listStore)
     }
     qDeleteAll(listStore.begin(), listStore.end());
     emit newStoreList(listInfo);
+}
+
+void HttpApi::rfidFetch(QList<rfidChangeInfo *> listFetch)
+{
+    rfidChangeInfo* info;
+    QList<GoodsInfo*> listInfo;
+    foreach(info, listFetch)
+    {
+        GoodsInfo* gInfo = new GoodsInfo();
+        gInfo->antId = info->antId;
+        gInfo->name = listGoodsName.at(info->rfid.at(7) % 12);
+        gInfo->rfid = QString(info->rfid.toHex());
+        gInfo->pos = info->pos;
+        qDebug()<<"[rfidFetch]"<<gInfo->antId<<gInfo->name<<info->rfid.toHex();
+        listInfo<<gInfo;
+    }
+    qDeleteAll(listFetch.begin(), listFetch.end());
+    emit newFetchList(listInfo);
 }
 
 void HttpApi::httpReply(QNetworkReply *reply)

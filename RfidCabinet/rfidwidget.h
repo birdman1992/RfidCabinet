@@ -33,20 +33,18 @@ public:
 
 public slots:
     void goodsIn(QList<GoodsInfo*>);
+    void goodsOut(QList<GoodsInfo*>);
     void rfidIn(QList<rfidChangeInfo*>);
-    void rfidOut(int,QByteArray);
+    void rfidOut(QList<rfidChangeInfo*>);
 
 protected:
     void paintEvent(QPaintEvent *);
 private slots:
     void on_save_clicked();
-    void on_rfidPanel_clicked(const QModelIndex &index);
     void on_back_clicked();
     void on_cell_config_clicked();
     void on_clear_config_clicked();
     void on_test_open_clicked(bool checked);
-
-    void on_cabType_currentTextChanged(const QString &arg1);
 
     void on_preCab_clicked(const QModelIndex &index);
 
@@ -54,9 +52,12 @@ private slots:
 
     void on_delCab_clicked();
 
+    void on_cabType_currentIndexChanged(const QString &arg1);
+
 signals:
     void doorStareChanged(bool isOpen);
     void rfidStoreReq(QList<rfidChangeInfo*>);
+    void rfidFetchReq(QList<rfidChangeInfo*>);
 
 private:
     Ui::RfidWidget *ui;
@@ -73,7 +74,6 @@ private:
     QList<Cabinet*> listCabinet;
     QList<QTableWidget*> listTab;
     QStringList listLayout;
-    QList<RfidArea*> listCells;
     QMap<int, RfidAnt*> antsMap;
     RepertoryManager* repManager;
 
@@ -94,6 +94,7 @@ private:
     int getBaseCount(QString scale);
     QString cellStyle(QColor rgb);
     bool checkPos(QPoint pos);
+    void readCellsData();
 };
 
 #endif // RFIDWIDGET_H

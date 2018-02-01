@@ -10,7 +10,7 @@ class RfidAnt : public QObject
     Q_OBJECT
 public:
     explicit RfidAnt(int _antId, RfidArea* area, QObject *parent = 0);
-    QStringList addId(QStringList &list);
+    QStringList addId(QStringList list);
     QStringList removeId(QStringList list);
     bool addId(QString _id);
     bool removeId(QString _id);

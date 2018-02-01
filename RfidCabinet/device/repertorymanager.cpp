@@ -25,22 +25,22 @@ void RepertoryManager::rfidIn(GoodsInfo* info)
     settings.sync();
 }
 
-void RepertoryManager::rfidOut(int antId, QString goodsId, QByteArray rfid)
+void RepertoryManager::rfidOut(GoodsInfo* info)
 {
-    if(rfid.isEmpty())
+    if(info->rfid.isEmpty())
         return;
-
-//    QSettings settings(getRepFile(antId), QSettings::IniFormat);
-//    QStringList goodsIdList = settings.childGroups();
-//    if(goodsIdList.indexOf(QString(rfid)) == -1)
-//        return;
-
-//    settings.beginGroup(goodsId);
-//    QString rfids = settings.value("rfids", QString()).toString();
-//    int goodsCount = rfidRemove(rfids, QString(rfid));
-//    settings.setValue("num",goodsCount);
-//    settings.endGroup();
-//    settings.sync();
+    qDebug()<<"[RepertoryManager::rfidOut]"<<info->rfid<<info->name;
+    QSettings settings(getRepFile(info->pos), QSettings::IniFormat);
+    settings.beginGroup(info->name);
+//    settings.setValue("name",info->name);
+//    settings.setValue("abbname",info->abbName);
+    QString rfids = settings.value("rfids", QString()).toString();
+    qDebug()<<rfids;
+    int goodsCount  = rfidRemove(rfids,QString(info->rfid));
+    settings.setValue("num",goodsCount);
+    settings.setValue("rfids",rfids);
+    settings.endGroup();
+    settings.sync();
 }
 
 QString RepertoryManager::getRepFile(QPoint pos)

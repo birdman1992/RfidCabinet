@@ -33,16 +33,16 @@ void DeviceSimulator::on_rfidIn_clicked()
     QList<rfidChangeInfo*> list_info;
     list_info<<new rfidChangeInfo(ui->antId->currentIndex(), Rfid);
     emit rfidIn(list_info);
-    saveInfoToButton(QString(Rfid), group_rfid);
+    saveInfoToButton(QString(Rfid.toHex()), group_rfid);
 }
 
 void DeviceSimulator::on_rfidOut_clicked()
 {
-    QByteArray Rfid = ui->rfid->text().toLocal8Bit();
+    QByteArray Rfid = QByteArray::fromHex(ui->rfid->text().toLocal8Bit());
     QList<rfidChangeInfo*> list_info;
     list_info<<new rfidChangeInfo(ui->antId->currentIndex(), Rfid);
     emit rfidOut(list_info);
-    saveInfoToButton(QString(Rfid), group_rfid);
+    saveInfoToButton(QString(Rfid.toHex()), group_rfid);
 }
 
 void DeviceSimulator::saveInfoToButton(QString info, QButtonGroup *group)
