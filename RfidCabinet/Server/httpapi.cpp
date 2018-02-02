@@ -57,6 +57,18 @@ void HttpApi::deleteToken()
     connect(reply_delete, SIGNAL(readyRead()), this, SLOT(replyDeleteToken()));
 }
 
+int HttpApi::getNameIndex(QByteArray qba)
+{
+    int ret = 0;
+    int i=0;
+
+    for(i=0; i<qba.length(); i++)
+    {
+        ret += qba.at(i);
+    }
+    return ret%12;
+}
+
 void HttpApi::rfidStore(QList<rfidChangeInfo*> listStore)
 {
     rfidChangeInfo* info;
@@ -65,7 +77,7 @@ void HttpApi::rfidStore(QList<rfidChangeInfo*> listStore)
     {
         GoodsInfo* gInfo = new GoodsInfo();
         gInfo->antId = info->antId;
-        gInfo->name = listGoodsName.at(info->rfid.at(7) % 12);
+        gInfo->name = listGoodsName.at(getNameIndex(info->rfid));
         gInfo->rfid = QString(info->rfid.toHex());
         gInfo->pos = info->pos;
         qDebug()<<"[rfidStore]"<<gInfo->antId<<gInfo->name<<info->rfid.toHex();

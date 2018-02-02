@@ -21,6 +21,7 @@ Widget::Widget(QWidget *parent) :
     win_rfid = new RfidWidget(this);
     win_stack->addWidget(win_rfid);
     connect(win_rfid, SIGNAL(doorStareChanged(bool)), devManager, SLOT(recvDoorState(bool)));
+    connect(win_rfid, SIGNAL(insertRfidReq(QStringList)), devManager, SLOT(insertRfid(QStringList)));
     connect(win_rfid, SIGNAL(rfidStoreReq(QList<rfidChangeInfo*>)), serverHttp, SLOT(rfidStore(QList<rfidChangeInfo*>)));
     connect(win_rfid, SIGNAL(rfidFetchReq(QList<rfidChangeInfo*>)), serverHttp, SLOT(rfidFetch(QList<rfidChangeInfo*>)));
     connect(devManager, SIGNAL(rfidIn(QList<rfidChangeInfo*>)), win_rfid, SLOT(rfidIn(QList<rfidChangeInfo*>)));
@@ -28,6 +29,7 @@ Widget::Widget(QWidget *parent) :
     connect(serverHttp, SIGNAL(newStoreList(QList<GoodsInfo*>)), win_rfid, SLOT(goodsIn(QList<GoodsInfo*>)));
     connect(serverHttp, SIGNAL(newFetchList(QList<GoodsInfo*>)), win_rfid, SLOT(goodsOut(QList<GoodsInfo*>)));
 
+    win_rfid->initData();
 //    win_stack->setCurrentIndex(0);
 
 }

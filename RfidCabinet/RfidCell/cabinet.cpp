@@ -9,6 +9,7 @@ Cabinet::Cabinet(QString _layout, int _colNum, QWidget *parent) :
     screenPos.setX(-1);
     screenPos.setY(-1);
     this->setShowGrid(false);
+    this->setFocusPolicy(Qt::NoFocus);
 
     cabSplit(layout);
     initCabinet();

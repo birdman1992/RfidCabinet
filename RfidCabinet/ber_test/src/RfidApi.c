@@ -151,8 +151,10 @@ int FreeRS(RFID_DATA *epc)		// free result
 		curr = ptr;
 		ptr = ptr->next;
 		free(curr);
+        curr = NULL;
 	}
 	free(ptr);
+    ptr = NULL;
 	return 1;
 }
 
@@ -293,3 +295,25 @@ int mainLoop(void)
 	return 0;
 }
 
+
+
+int  writeDataToHashTable(unsigned char *_id)
+{
+    unsigned long local;
+    unsigned char id[12] = {0};
+    time_t seconds;
+    seconds = time(NULL);
+
+    memcpy(id,_id,12);
+    if((local=GetHashTablePos(id, RfidHash,MHI,12)) == 0)	// not storage
+    {
+//            printf("GetHashTablePos:%d\n",local);
+        local = InsertHash(id, RfidHash,MHI,12);
+        rInfo[local].index = seconds;
+        memcpy(rInfo[local].epc,id,12);
+        return 0;
+    }
+    else
+        return -1;
+
+}

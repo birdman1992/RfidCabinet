@@ -90,4 +90,14 @@ void DeviceManager::recvDoorState(bool isopen)
         devRfid->startScan();
 }
 
+void DeviceManager::insertRfid(QStringList ids)
+{/*qDebug()<<"[insertRfid]"<<ids;*/
+    devRfid->insertRfid(ids);
+}
+
+void DeviceManager::test()
+{
+    qDebug("test>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+}
+
 

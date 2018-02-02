@@ -77,6 +77,7 @@ typedef struct rfid_info{
 extern int cfd ;
 extern struct HashItem* RfidHash;
 
+extern int writeDataToHashTable(unsigned char* _id);//length of _id<=12
 extern int _write(int fd, void *buffer, int length);
 extern int ReadDevice(int hComm,RFID_DATA *epc,int ant,time_t seconds,int(*DataProcess)(RFID_DATA *,unsigned char *,int,time_t));
 extern int open_com(char *DevPath);

@@ -30,6 +30,7 @@ class RfidWidget : public QWidget
 public:
     explicit RfidWidget(QWidget *parent = 0);
     ~RfidWidget();
+    void initData();
 
 public slots:
     void goodsIn(QList<GoodsInfo*>);
@@ -58,6 +59,8 @@ signals:
     void doorStareChanged(bool isOpen);
     void rfidStoreReq(QList<rfidChangeInfo*>);
     void rfidFetchReq(QList<rfidChangeInfo*>);
+    void insertRfidReq(QStringList);
+    void test();
 
 private:
     Ui::RfidWidget *ui;

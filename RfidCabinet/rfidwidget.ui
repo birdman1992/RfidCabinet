@@ -96,6 +96,9 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{background-color: rgb(255, 255, 255);}</string>
+        </property>
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -121,12 +124,14 @@
          <item>
           <widget class="QStackedWidget" name="menuStack">
            <property name="styleSheet">
-            <string notr="true">#menuStack{
+            <string notr="true">#page_menu{
 background-color: rgba(255, 255, 255, 0);
 }
-QWidget{
+#page_set{
 background-color: rgba(255, 255, 255, 0);
-}</string>
+}
+
+</string>
            </property>
            <property name="currentIndex">
             <number>1</number>
@@ -199,6 +204,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <height>65</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
@@ -217,6 +225,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <width>0</width>
                  <height>65</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="text">
                 <string>柜格配置</string>
@@ -251,6 +262,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <height>80</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="text">
                 <string>返回</string>
                </property>
@@ -264,6 +278,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <height>80</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="text">
                 <string>保存</string>
                </property>
@@ -276,6 +293,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <width>0</width>
                  <height>80</height>
                 </size>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
                </property>
                <property name="text">
                 <string>配置初始化</string>
@@ -305,6 +325,9 @@ font: 20px &quot;微软雅黑&quot;;
                  <width>0</width>
                  <height>500</height>
                 </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
                </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
@@ -353,6 +376,9 @@ font: 20px &quot;微软雅黑&quot;;
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::NoFocus</enum>
                      </property>
                     </widget>
                    </item>
@@ -420,9 +446,9 @@ font: 20px &quot;微软雅黑&quot;;
                   <widget class="QPushButton" name="addCab">
                    <property name="geometry">
                     <rect>
-                     <x>160</x>
-                     <y>0</y>
-                     <width>71</width>
+                     <x>155</x>
+                     <y>5</y>
+                     <width>69</width>
                      <height>38</height>
                     </rect>
                    </property>
@@ -438,8 +464,11 @@ font: 20px &quot;微软雅黑&quot;;
                      <height>0</height>
                     </size>
                    </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::NoFocus</enum>
+                   </property>
                    <property name="styleSheet">
-                    <string notr="true">background-color: rgb(255, 255, 255);</string>
+                    <string notr="true"/>
                    </property>
                    <property name="text">
                     <string>添加&gt;&gt;</string>
@@ -448,9 +477,9 @@ font: 20px &quot;微软雅黑&quot;;
                   <widget class="QPushButton" name="delCab">
                    <property name="geometry">
                     <rect>
-                     <x>160</x>
-                     <y>45</y>
-                     <width>71</width>
+                     <x>155</x>
+                     <y>50</y>
+                     <width>69</width>
                      <height>38</height>
                     </rect>
                    </property>
@@ -465,6 +494,9 @@ font: 20px &quot;微软雅黑&quot;;
                      <width>0</width>
                      <height>0</height>
                     </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::NoFocus</enum>
                    </property>
                    <property name="text">
                     <string>&lt;&lt;撤销</string>

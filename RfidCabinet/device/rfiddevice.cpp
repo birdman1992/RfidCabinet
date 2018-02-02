@@ -16,10 +16,15 @@ RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
     memset(rInfo,0x00,sizeof(sizeof(MDYINFO)*MHI));
 
     setbuf(stdout,NULL);
-
+#ifdef RUN_IN_ARM
+    cfd = open_com(QByteArray(DEV_Rfid).data());
+    if(cfd > 0)
+        qDebug()<<DEV_Rfid<<"open success!";
+#else
     cfd = open_com(QByteArray(DEV_RFID_PC).data());
     if(cfd > 0)
         qDebug()<<DEV_RFID_PC<<"open success!";
+#endif
     CryptTables();				// 初始化hash
     RfidHash = inithashtable(MHI);
 }
@@ -87,23 +92,26 @@ void RfidDevice::run()
     {
         sleep(1);
         RFID_DATA *epc = (RFID_DATA *)malloc(sizeof(RFID_DATA));
+        epc->next = NULL;
         GetEpc(epc);
-        if(epc != NULL)
+        RFID_DATA *epc_p = epc;
+
+        if(epc_p != NULL)
         {
-            while (epc->next != NULL)
+            while (epc_p->next != NULL)
             {
-                epc = epc->next;
-                if(epc->dc_type == 1)
+                epc_p = epc_p->next;
+                if(epc_p->dc_type == 1)
                 {
-                    id = QByteArray((const char*)epc->id, 12);
-                    rfidChangeInfo* info = new rfidChangeInfo(epc->ant_num,id);
+                    id = QByteArray((const char*)epc_p->id, 12);
+                    rfidChangeInfo* info = new rfidChangeInfo(epc_p->ant_num,id);
                     inList<<info;
 //                    qDebug()<<"[RFID in]"<<"ant:"<<epc->ant_num<<id.toHex();
                 }
-                else if(epc->dc_type == 0)
+                else if(epc_p->dc_type == 0)
                 {
-                    id = QByteArray((const char*)epc->id, 12);
-                    rfidChangeInfo* info = new rfidChangeInfo(epc->ant_num,id);
+                    id = QByteArray((const char*)epc_p->id, 12);
+                    rfidChangeInfo* info = new rfidChangeInfo(epc_p->ant_num,id);
                     outList<<info;
 //                    qDebug()<<"[RFID out]"<<"ant:"<<epc->ant_num<<id.toHex();
                 }
@@ -131,4 +139,16 @@ void RfidDevice::run()
     }
     qDebug()<<"[RfidDevice]:scan finished.";
     return;
+}
+
+void RfidDevice::insertRfid(QStringList list_id)
+{
+    QByteArray qba;
+    QString str;
+
+    foreach(str, list_id)
+    {
+        qba = QByteArray::fromHex(str.toLocal8Bit());
+        writeDataToHashTable((unsigned char*)qba.data());
+    }
 }

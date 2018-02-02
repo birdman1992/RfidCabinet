@@ -144,7 +144,7 @@ void RfidArea::setBackColor(QColor c)
 
 void RfidArea::updateInfo()
 {
-    qDebug()<<"[updateInfo]"<<areaPos;
+//    qDebug()<<"[updateInfo]"<<areaPos;
     ui->infoLab->setText(getShowStr());
 }
 
@@ -163,7 +163,7 @@ void RfidArea::readAreaData()
         addId(str.split(" ", QString::SkipEmptyParts));
         settings.endGroup();
     }
-    qDebug()<<"[readAreaData]"<<list_id;
+//    qDebug()<<"[readAreaData]"<<list_id;
 }
 
 QString RfidArea::getShowStr()
@@ -181,7 +181,7 @@ QString RfidArea::getShowStr()
         showStr+=QString("%1×%2\n").arg(settings.value("name").toString()).arg(settings.value("num").toString());
         settings.endGroup();
     }
-    qDebug()<<"[getShowStr]"<<showStr;
+//    qDebug()<<"[getShowStr]"<<showStr;
     return showStr;
 }
 

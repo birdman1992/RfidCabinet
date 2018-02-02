@@ -26,6 +26,7 @@ private:
     void getToken(QString userName, QString passWd);
     void updateToken();
     void deleteToken();
+    int getNameIndex(QByteArray qba);
 
 signals:
     void newStoreList(QList<GoodsInfo*>);

@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QByteArray>
 #include <QList>
+#include <QStringList>
 #include "Structs/rfidchangeinfo.h"
 //struct RFID_DATA;
 
@@ -18,6 +19,7 @@ public:
 
     void startScan();
     void stopScan();
+    void insertRfid(QStringList);
 private:
     void run();
 

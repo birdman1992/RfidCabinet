@@ -21,16 +21,21 @@ RfidWidget::RfidWidget(QWidget *parent) :
     spanY = -1;
     repManager = new RepertoryManager(this);
     screenPos = QPoint(-1,-1);
+    needSelScreen = true;
 
     initMenu();
     initCabType(QString(CAB_TYPE).split("#"));
     creatRfidCells();
-    readCellsData();
 }
 
 RfidWidget::~RfidWidget()
 {
     delete ui;
+}
+
+void RfidWidget::initData()
+{
+    readCellsData();
 }
 
 void RfidWidget::goodsIn(QList<GoodsInfo *> listStore)
@@ -180,6 +185,7 @@ void RfidWidget::readCellsData()
 {
     Cabinet* cab;
     int i=0;
+    emit test();
 
     foreach(cab, listCabinet)
     {
@@ -188,6 +194,7 @@ void RfidWidget::readCellsData()
             RfidArea* area = cab->areaAt(i);
             area->readAreaData();
             area->updateInfo();
+            emit insertRfidReq(area->list_id);
         }
     }
 }

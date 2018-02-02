@@ -27,6 +27,8 @@ signals:
 
 public slots:
     void recvDoorState(bool isopen);
+    void insertRfid(QStringList);
+    void test();
 private slots:
 
 };
