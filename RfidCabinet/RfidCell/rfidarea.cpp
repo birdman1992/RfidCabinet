@@ -20,7 +20,7 @@ RfidArea::RfidArea(QPoint pos, QWidget *parent) :
     font = new QFont("微软雅黑");
     font->setPixelSize(15);
     this->setFont(*font);
-    ui->infoLab->setGraphicsEffect(shadow_effect);
+    ui->frame->setGraphicsEffect(shadow_effect);
 }
 
 RfidArea::~RfidArea()
@@ -139,13 +139,14 @@ QStringList RfidArea::sameList(QStringList newList, QStringList fixList)
 void RfidArea::setBackColor(QColor c)
 {
     QString ret = QString("color:rgb(255,255,255);background-color: rgb(%1, %2, %3);").arg(c.red()).arg(c.green()).arg(c.blue());
-    ui->infoLab->setStyleSheet(ret);
+    ui->frame->setStyleSheet(ret);
 }
 
 void RfidArea::updateInfo()
 {
 //    qDebug()<<"[updateInfo]"<<areaPos;
     ui->infoLab->setText(getShowStr());
+    ui->num->setText(QString::number(list_id.count()));
 }
 
 void RfidArea::readAreaData()
