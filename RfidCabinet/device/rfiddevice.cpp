@@ -9,6 +9,7 @@ extern "C"{
 RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
 {
 //    runFlag = false;
+    reader = new RfidReader(DEV_Rfid ,this);
 
     qRegisterMetaType<QList<rfidChangeInfo*> >("QList<rfidChangeInfo*>");
 
@@ -17,7 +18,7 @@ RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
 
     setbuf(stdout,NULL);
 #ifdef RUN_IN_ARM
-    cfd = open_com(QByteArray(DEV_Rfid).data());
+//    cfd = open_com(QByteArray(DEV_Rfid).data());
     if(cfd > 0)
         qDebug()<<DEV_Rfid<<"open success!";
 #else
@@ -27,6 +28,7 @@ RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
 #endif
     CryptTables();				// 初始化hash
     RfidHash = inithashtable(MHI);
+    startScan();
 }
 
 RfidDevice::~RfidDevice()
@@ -41,8 +43,9 @@ RfidDevice::~RfidDevice()
 void RfidDevice::startScan()
 {
     qDebug()<<"[startScan]";
-    if(!this->isRunning())
-        this->start();
+    reader->rfidScan();
+//    if(!this->isRunning())
+//        this->start();
 }
 
 void RfidDevice::stopScan()

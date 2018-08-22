@@ -6,6 +6,7 @@
 #include <QByteArray>
 #include <QList>
 #include <QStringList>
+#include "device/rfidreader.h"
 #include "Structs/rfidchangeinfo.h"
 //struct RFID_DATA;
 
@@ -24,6 +25,7 @@ private:
     void run();
 
     bool runFlag;
+    RfidReader* reader;
     QList<rfidChangeInfo*> inList;
     QList<rfidChangeInfo*> outList;
 signals:

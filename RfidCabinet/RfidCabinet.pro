@@ -5,8 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui network
-#target.path = /home
-#INSTALLS += target
+target.path = /home
+INSTALLS += target
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -48,7 +48,8 @@ SOURCES += \
     device/repertorymanager.cpp \
     Structs/rfidchangeinfo.cpp \
     RfidCell/cabinet.cpp \
-    device/rfidant.cpp
+    device/rfidant.cpp \
+    device/rfidreader.cpp
 
 HEADERS += \
         widget.h \
@@ -75,7 +76,8 @@ HEADERS += \
     device/repertorymanager.h \
     Structs/rfidchangeinfo.h \
     RfidCell/cabinet.h \
-    device/rfidant.h
+    device/rfidant.h \
+    device/rfidreader.h
 
 FORMS += \
         widget.ui \
