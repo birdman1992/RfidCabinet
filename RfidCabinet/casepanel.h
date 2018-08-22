@@ -6,7 +6,7 @@
 #include <QFont>
 #include <QResizeEvent>
 #include "Structs/cabinetinfo.h"
-
+//not used
 namespace Ui {
 class CasePanel;
 }

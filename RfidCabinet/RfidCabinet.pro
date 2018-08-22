@@ -5,6 +5,8 @@
 #-------------------------------------------------
 
 QT       += core gui network
+#target.path = /home
+#INSTALLS += target
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
