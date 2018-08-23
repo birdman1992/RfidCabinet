@@ -110,6 +110,7 @@ QStringList CabinetInfo::caseShowStr(QFont font, int maxWidth)
 GoodsInfo::GoodsInfo()
 {
     outNum = 0;
+    rfidStatus = 0;
 }
 
 GoodsInfo::GoodsInfo(GoodsInfo &info)
@@ -123,6 +124,7 @@ GoodsInfo::GoodsInfo(GoodsInfo &info)
     goodsType = info.goodsType;
     abbName = info.abbName;
     outNum = 0;
+    rfidStatus = info.rfidStatus;
 }
 
 void GoodsInfo::resetInfo(GoodsInfo &info)
@@ -136,6 +138,7 @@ void GoodsInfo::resetInfo(GoodsInfo &info)
     goodsType = info.goodsType;
     abbName = info.abbName;
     outNum = info.outNum;
+    rfidStatus = info.rfidStatus;
 }
 
 QString GoodsInfo::nameWithType()

@@ -49,7 +49,8 @@ SOURCES += \
     Structs/rfidchangeinfo.cpp \
     RfidCell/cabinet.cpp \
     device/rfidant.cpp \
-    device/rfidreader.cpp
+    device/rfidreader.cpp \
+    manager/epcmanager.cpp
 
 HEADERS += \
         widget.h \
@@ -77,7 +78,8 @@ HEADERS += \
     Structs/rfidchangeinfo.h \
     RfidCell/cabinet.h \
     device/rfidant.h \
-    device/rfidreader.h
+    device/rfidreader.h \
+    manager/epcmanager.h
 
 FORMS += \
         widget.ui \

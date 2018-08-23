@@ -24,6 +24,7 @@ public:
     int num;//耗材数量
     int outNum;//取出数量
     int antId;
+    int rfidStatus;
     QPoint pos;
     QString Py;
 };
