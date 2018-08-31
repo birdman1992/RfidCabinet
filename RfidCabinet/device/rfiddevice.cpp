@@ -9,7 +9,7 @@ extern "C"{
 RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
 {
 //    runFlag = false;
-    reader = new RfidReader(DEV_Rfid ,this);
+    manager_epc = EpcManager::manager();
 
     qRegisterMetaType<QList<rfidChangeInfo*> >("QList<rfidChangeInfo*>");
 
@@ -18,16 +18,14 @@ RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
 
     setbuf(stdout,NULL);
 #ifdef RUN_IN_ARM
-//    cfd = open_com(QByteArray(DEV_Rfid).data());
-    if(cfd > 0)
-        qDebug()<<DEV_Rfid<<"open success!";
+    reader = new RfidReader(0, DEV_Rfid ,this);
 #else
-    cfd = open_com(QByteArray(DEV_RFID_PC).data());
-    if(cfd > 0)
-        qDebug()<<DEV_RFID_PC<<"open success!";
+    reader = new RfidReader(1, DEV_RFID_PC ,this);
 #endif
-    CryptTables();				// 初始化hash
-    RfidHash = inithashtable(MHI);
+//    CryptTables();				// 初始化hash
+//    RfidHash = inithashtable(MHI);
+    connect(reader, SIGNAL(scanFinished()), this, SLOT(rfidReadyread()));
+//    reader->setReaderAddress(0);
     startScan();
 }
 
@@ -48,6 +46,8 @@ void RfidDevice::startScan()
 //        this->start();
 }
 
+
+//unuse
 void RfidDevice::stopScan()
 {
     qDebug()<<"[stopScan]";
@@ -144,14 +144,32 @@ void RfidDevice::run()
     return;
 }
 
+void RfidDevice::rfidReadyread()
+{
+    inList = reader->getScanAddList();
+    outList = reader->getScanDelList();
+    if(!inList.isEmpty())
+    {
+        emit rfidIn(inList);
+        inList.clear();
+    }
+
+    if(!outList.isEmpty())
+    {
+        emit rfidOut(outList);
+        outList.clear();
+    }
+}
+
 void RfidDevice::insertRfid(QStringList list_id)
 {
-    QByteArray qba;
-    QString str;
+    manager_epc->initEpcHash(list_id);
+//    QByteArray qba;
+//    QString str;
 
-    foreach(str, list_id)
-    {
-        qba = QByteArray::fromHex(str.toLocal8Bit());
-        writeDataToHashTable((unsigned char*)qba.data());
-    }
+//    foreach(str, list_id)
+//    {
+//        qba = QByteArray::fromHex(str.toLocal8Bit());
+//        writeDataToHashTable((unsigned char*)qba.data());
+//    }
 }

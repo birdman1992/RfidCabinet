@@ -7,6 +7,8 @@
 #include <QList>
 #include <QStringList>
 #include "Qextserial/qextserialport.h"
+#include "manager/epcmanager.h"
+#include "Structs/rfidchangeinfo.h"
 
 class RfidReader : public QObject
 {
@@ -14,9 +16,15 @@ class RfidReader : public QObject
 public:
     RfidReader(int address, QString dev, QObject* parent = NULL);
     void rfidScan();
+    void setReaderAddress(char address);
+    QList<rfidChangeInfo *> getScanAddList();
+    QList<rfidChangeInfo *> getScanDelList();
 
 private:
     QList<QByteArray> sendList;
+    QList<rfidChangeInfo*> listAdd;
+    QList<rfidChangeInfo*> listDel;
+    EpcManager* manager_epc;
     QextSerialPort* com;
     QByteArray dataCache;
     bool waitFlag;
@@ -25,9 +33,11 @@ private:
     int readerId;
     qint64 write(QByteArray data);
     qint64 writeNext();
+    bool epcFilter(QString epc);
     void waitForWrite(QByteArray data);
     void scanOneAnt(int antId);
     void readDataCache();
+    void scanFinish();
 
     void setScanAnt(char address, char antId);
     void rfidInventory(char address, char repeat);
@@ -41,6 +51,9 @@ private:
 
     void parPackage(QByteArray qba);
     QString parEpc(QByteArray qba);
+
+signals:
+    void scanFinished();
 
 private slots:
     void readData();

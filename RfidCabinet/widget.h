@@ -7,6 +7,7 @@
 #include "rfidwidget.h"
 #include "device/devicemanager.h"
 #include "Server/httpapi.h"
+#include "cabinetserver.h"
 
 namespace Ui {
 class Widget;
@@ -24,6 +25,7 @@ public:
 private:
     Ui::Widget *ui;
     DeviceManager* devManager;
+    CabinetServer* cabServer;
 
     HttpApi* serverHttp;
     RfidWidget* win_rfid;

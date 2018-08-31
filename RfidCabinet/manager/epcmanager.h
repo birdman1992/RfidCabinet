@@ -8,13 +8,21 @@ class EpcManager
 {
 public:
     static EpcManager* manager();
-    bool append();
+    bool insert(QString);
+    void append(QStringList l);
+    void initEpcHash(QStringList l);
+    void clearCache();
+//    void checkNewAndDel();
+    QStringList checkDel();
 
 private:
     static EpcManager* m;
+    QStringList cacheList;
+    QStringList newList;
+    QStringList delList;
     EpcManager();
 
-    QHash<QString, GoodsInfo*> hash_epc;
+    QHash<QString, int> hash_epc;  //0:del  1:new  2:old
 
 };
 

@@ -97,7 +97,7 @@ void RfidWidget::rfidOut(QList<rfidChangeInfo *> listFetch)
 {
     rfidChangeInfo* info;
     QList<rfidChangeInfo *> list_fetch;
-    qDebug()<<"rfidFetchReq";
+    qDebug()<<"[RfidWidget::rfidOut]";
 
     foreach(info, listFetch)
     {
@@ -113,6 +113,7 @@ void RfidWidget::rfidOut(QList<rfidChangeInfo *> listFetch)
             list_fetch<<info;
         }
     }
+
     if(!list_fetch.isEmpty()){
         emit rfidFetchReq(list_fetch);
     }

@@ -11,13 +11,13 @@ void RepertoryManager::rfidIn(GoodsInfo* info)
 {
     if(info->rfid.isEmpty())
         return;
-    qDebug()<<"[RepertoryManager::rfidIn]"<<info->rfid<<info->name;
+//    qDebug()<<"[RepertoryManager::rfidIn]"<<info->rfid<<info->name;
     QSettings settings(getRepFile(info->pos), QSettings::IniFormat);
     settings.beginGroup(info->name);
     settings.setValue("name",info->name);
     settings.setValue("abbname",info->abbName);
     QString rfids = settings.value("rfids", QString()).toString();
-    qDebug()<<rfids;
+//    qDebug()<<rfids;
     int goodsCount  = rfidAppend(rfids,QString(info->rfid));
     settings.setValue("num",goodsCount);
     settings.setValue("rfids",rfids);
@@ -29,13 +29,12 @@ void RepertoryManager::rfidOut(GoodsInfo* info)
 {
     if(info->rfid.isEmpty())
         return;
-    qDebug()<<"[RepertoryManager::rfidOut]"<<info->rfid<<info->name;
+//    qDebug()<<"[RepertoryManager::rfidOut]"<<info->rfid<<info->name;
     QSettings settings(getRepFile(info->pos), QSettings::IniFormat);
     settings.beginGroup(info->name);
 //    settings.setValue("name",info->name);
 //    settings.setValue("abbname",info->abbName);
     QString rfids = settings.value("rfids", QString()).toString();
-    qDebug()<<rfids;
     int goodsCount  = rfidRemove(rfids,QString(info->rfid));
     settings.setValue("num",goodsCount);
     settings.setValue("rfids",rfids);
@@ -57,13 +56,13 @@ int RepertoryManager::rfidAppend(QString& rfids, QString rfid)
         rfidList<<rfid;
         rfids = rfidList.join(" ");
     }
-    qDebug()<<"[rfidAppend]"<<rfidList.count();
+//    qDebug()<<"[rfidAppend]"<<rfidList.count();
     return rfidList.count();
 }
 
 int RepertoryManager::rfidRemove(QString &rfids, QString rfid)
 {
-    QStringList rfidList = rfids.split(" ");
+    QStringList rfidList = rfids.split(" ", QString::SkipEmptyParts);
     if(rfidList.isEmpty())
         return 0;
 

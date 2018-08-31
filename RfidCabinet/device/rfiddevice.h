@@ -8,6 +8,7 @@
 #include <QStringList>
 #include "device/rfidreader.h"
 #include "Structs/rfidchangeinfo.h"
+#include "manager/epcmanager.h"
 //struct RFID_DATA;
 
 
@@ -26,6 +27,7 @@ private:
 
     bool runFlag;
     RfidReader* reader;
+    EpcManager* manager_epc;
     QList<rfidChangeInfo*> inList;
     QList<rfidChangeInfo*> outList;
 signals:
@@ -34,6 +36,7 @@ signals:
 
 public slots:
 //    int rfidScan();
+    void rfidReadyread();
 };
 
 #endif // RFIDDEVICE_H

@@ -95,7 +95,7 @@ void HttpApi::rfidFetch(QList<rfidChangeInfo *> listFetch)
     {
         GoodsInfo* gInfo = new GoodsInfo();
         gInfo->antId = info->antId;
-        gInfo->name = listGoodsName.at(info->rfid.at(7) % 12);
+        gInfo->name = listGoodsName.at(getNameIndex(info->rfid));
         gInfo->rfid = QString(info->rfid.toHex());
         gInfo->pos = info->pos;
         qDebug()<<"[rfidFetch]"<<gInfo->antId<<gInfo->name<<info->rfid.toHex();

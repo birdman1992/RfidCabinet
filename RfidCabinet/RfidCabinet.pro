@@ -50,7 +50,14 @@ SOURCES += \
     RfidCell/cabinet.cpp \
     device/rfidant.cpp \
     device/rfidreader.cpp \
-    manager/epcmanager.cpp
+    manager/epcmanager.cpp \
+    device/Hid/qhid.cpp \
+    device/Hid/hid.c \
+    device/controldevice.cpp \
+    cabinetserver.cpp \
+    Structs/goodscheckinfo.cpp \
+    Structs/dayreportinfo.cpp \
+    manager/cabinetmanager.cpp
 
 HEADERS += \
         widget.h \
@@ -79,7 +86,14 @@ HEADERS += \
     RfidCell/cabinet.h \
     device/rfidant.h \
     device/rfidreader.h \
-    manager/epcmanager.h
+    manager/epcmanager.h \
+    device/Hid/qhid.h \
+    device/Hid/hid.h \
+    device/controldevice.h \
+    cabinetserver.h \
+    Structs/goodscheckinfo.h \
+    Structs/dayreportinfo.h \
+    manager/cabinetmanager.h
 
 FORMS += \
         widget.ui \

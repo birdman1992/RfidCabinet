@@ -180,6 +180,7 @@ QString RfidArea::getShowStr()
     {
         settings.beginGroup(goodsId);
         showStr+=QString("%1×%2\n").arg(settings.value("name").toString()).arg(settings.value("num").toString());
+//        qDebug()<<showStr;
         settings.endGroup();
     }
 //    qDebug()<<"[getShowStr]"<<showStr;

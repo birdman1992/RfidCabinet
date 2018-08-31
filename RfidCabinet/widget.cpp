@@ -18,6 +18,8 @@ Widget::Widget(QWidget *parent) :
     win_stack = new QStackedWidget(this);
     win_layout->addWidget(win_stack);
 
+    cabServer = new CabinetServer(this);
+
     win_rfid = new RfidWidget(this);
     win_stack->addWidget(win_rfid);
     connect(win_rfid, SIGNAL(doorStareChanged(bool)), devManager, SLOT(recvDoorState(bool)));
