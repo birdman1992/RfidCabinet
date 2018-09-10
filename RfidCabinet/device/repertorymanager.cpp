@@ -44,7 +44,7 @@ void RepertoryManager::rfidOut(GoodsInfo* info)
 
 QString RepertoryManager::getRepFile(QPoint pos)
 {
-        return QString(FILE_CONFIG_REP) + QString("%1#%2.rep").arg(pos.x()).arg(pos.y());
+    return QString(FILE_CONFIG_REP) + QString("%1#%2.rep").arg(pos.x()).arg(pos.y());
 }
 
 int RepertoryManager::rfidAppend(QString& rfids, QString rfid)

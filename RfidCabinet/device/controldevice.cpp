@@ -19,8 +19,9 @@ char dev_path[2][24] = {0};
 
 ControlDevice::ControlDevice(QObject *parent) : QObject(parent)
 {
+    cabManager = CabinetManager::manager();
 #ifdef SIMULATE_ON
-    simulateInit();
+//    simulateInit();
 #else
     deviceInit();
 #endif
@@ -60,24 +61,21 @@ void ControlDevice::deviceInit()
     connect(hid_code_scan, SIGNAL(hidRead(QByteArray)), this, SLOT(readCodeScanData(QByteArray)));
 }
 
-bool ControlDevice::installGlobalConfig(CabinetConfig *globalConfig)
+bool ControlDevice::installGlobalConfig()
 {
-    if(globalConfig == NULL)
-        return false;
-    config = globalConfig;
-    getDevState();
+//    getDevState();
     return true;
 }
 
-void ControlDevice::simulateInit()
-{
-    qDebug("simulateInit");
-    dev_simulate = new DeviceSimulate();
-    dev_simulate->show();
-    connect(dev_simulate, SIGNAL(sendCardReaderData(QByteArray)), this, SLOT(readCardReaderData(QByteArray)));
-    connect(dev_simulate, SIGNAL(sendCodeScanData(QByteArray)), this, SLOT(readCodeScanData(QByteArray)));
-    connect(dev_simulate, SIGNAL(sendRfidData(QByteArray)), this, SLOT(readRfidData(QByteArray)));
-}
+//void ControlDevice::simulateInit()
+//{
+//    qDebug("simulateInit");
+//    dev_simulate = new DeviceSimulate();
+//    dev_simulate->show();
+//    connect(dev_simulate, SIGNAL(sendCardReaderData(QByteArray)), this, SLOT(readCardReaderData(QByteArray)));
+//    connect(dev_simulate, SIGNAL(sendCodeScanData(QByteArray)), this, SLOT(readCodeScanData(QByteArray)));
+//    connect(dev_simulate, SIGNAL(sendRfidData(QByteArray)), this, SLOT(readRfidData(QByteArray)));
+//}
 
 void ControlDevice::ctrlCmdInit()
 {
@@ -193,15 +191,15 @@ void ControlDevice::comRfidInit(int baudRate, int dataBits, int Parity, int stop
 void ControlDevice::openCase(int seqNum, int index)
 {
     qDebug()<<"openCase"<<seqNum<<index;
-    if((seqNum<0) || (seqNum>=config->list_cabinet.count()))
+    if((seqNum<0) || (seqNum>=cabManager->cabinetColCount()))
         return;
-    if((index<0) || (index>=config->list_cabinet[seqNum]->list_case.count()))
+    if((index<0) || (index>=cabManager->cabinetRowCount(seqNum)))
         return;
 
-    int ctrl_seqNum = config->list_cabinet[seqNum]->list_case[index]->ctrlSeq;
-    int ctrl_index = config->list_cabinet[seqNum]->list_case[index]->ctrlIndex;
+//    int ctrl_seqNum = config->list_cabinet[seqNum]->list_case[index]->ctrlSeq;
+//    int ctrl_index = config->list_cabinet[seqNum]->list_case[index]->ctrlIndex;
 
-    lockCtrl(ctrl_seqNum, ctrl_index);
+//    lockCtrl(ctrl_seqNum, ctrl_index);
 }
 
 void ControlDevice::lockCtrl(int ioNum)
@@ -254,37 +252,37 @@ void ControlDevice::openLock(int seqNum, int index)
     lockCtrl(seqNum, index);
 }
 
-void ControlDevice::getLockState()
-{
-    QByteArray qba = QByteArray::fromHex("fa000200ff");
-    int i = 0;
+//void ControlDevice::getLockState()
+//{
+//    QByteArray qba = QByteArray::fromHex("fa000200ff");
+//    int i = 0;
 
-#ifndef SIMULATE_ON
-    disconnect(com_lock_ctrl, SIGNAL(readyRead()), this, SLOT(readLockCtrlData()));
-#endif
+//#ifndef SIMULATE_ON
+//    disconnect(com_lock_ctrl, SIGNAL(readyRead()), this, SLOT(readLockCtrlData()));
+//#endif
 
-    for(i=0; i<config->list_cabinet.count(); i++)
-    {
-        qba[1] = i;
-#ifndef SIMULATE_ON
-    com_lock_ctrl->write(qba.data(), qba.size());
-    if(com_lock_ctrl->waitForReadyRead(200))
-    {
-        QByteArray bak = com_lock_ctrl->readAll();
-        if(bak[2]|bak[3]|bak[4])//有锁未关
-        {
-            config->cabVoice.voicePlay(VOICE_CLOSE_DOOR);
-            break;
-        }
-    }
-#endif
-        qDebug()<<"[getLockState]"<<qba.toHex();
-        config->cabVoice.voicePlay(VOICE_CLOSE_DOOR);
-    }
-#ifndef SIMULATE_ON
-    connect(com_lock_ctrl, SIGNAL(readyRead()), this, SLOT(readLockCtrlData()));
-#endif
-}
+//    for(i=0; i<config->list_cabinet.count(); i++)
+//    {
+//        qba[1] = i;
+//#ifndef SIMULATE_ON
+//    com_lock_ctrl->write(qba.data(), qba.size());
+//    if(com_lock_ctrl->waitForReadyRead(200))
+//    {
+//        QByteArray bak = com_lock_ctrl->readAll();
+//        if(bak[2]|bak[3]|bak[4])//有锁未关
+//        {
+//            config->cabVoice.voicePlay(VOICE_CLOSE_DOOR);
+//            break;
+//        }
+//    }
+//#endif
+//        qDebug()<<"[getLockState]"<<qba.toHex();
+//        config->cabVoice.voicePlay(VOICE_CLOSE_DOOR);
+//    }
+//#ifndef SIMULATE_ON
+//    connect(com_lock_ctrl, SIGNAL(readyRead()), this, SLOT(readLockCtrlData()));
+//#endif
+//}
 
 void ControlDevice::readyForNewCar(GoodsCar car)
 {
@@ -329,7 +327,7 @@ void ControlDevice::readCodeScanData(QByteArray qba)
 //    qba = (index==-1)?qba:qba.left(index);
 //    qDebug()<<"[readCodeScanData]"<<qba;
 //    emit codeScanData(qba);
-    config->clearTimeoutFlag();
+//    config->clearTimeoutFlag();
     qDebug()<<"[readCodeScanData]"<<qba;
     emit codeScanData(qba);
 }
@@ -441,10 +439,10 @@ int ControlDevice::get_path(void)
     return event;
 }
 
-void ControlDevice::getDevState()
-{
-    config->setCardReaderState( strlen(dev_path[0])!=0 );
-    config->setCodeScanState( strlen(dev_path[1])!=0 );
-    qDebug()<<"[rfid dev]"<<strlen(dev_path[0]);
-    qDebug()<<"[scan dev]"<<strlen(dev_path[1]);
-}
+//void ControlDevice::getDevState()
+//{
+//    config->setCardReaderState( strlen(dev_path[0])!=0 );
+//    config->setCodeScanState( strlen(dev_path[1])!=0 );
+//    qDebug()<<"[rfid dev]"<<strlen(dev_path[0]);
+//    qDebug()<<"[scan dev]"<<strlen(dev_path[1]);
+//}

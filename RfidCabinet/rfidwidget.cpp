@@ -23,6 +23,8 @@ RfidWidget::RfidWidget(QWidget *parent) :
     screenPos = QPoint(-1,-1);
     needSelScreen = true;
 
+    cabManager = CabinetManager::manager();
+
     initMenu();
     initCabType(QString(CAB_TYPE).split("#"));
     creatRfidCells();
@@ -127,6 +129,11 @@ void RfidWidget::paintEvent(QPaintEvent*)
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
+void RfidWidget::showEvent(QShowEvent *)
+{
+    ui->serverAddr->setText(cabManager->getServerAddress());
+}
+
 void RfidWidget::initMenu()
 {
     if(menu != NULL)
@@ -163,6 +170,13 @@ void RfidWidget::initCabType(QStringList typeList)
 {
     ui->cabType->addItems(typeList);
     ui->cabType->setCurrentIndex(0);
+}
+
+void RfidWidget::initLockConfig()
+{
+    ui->lock_col->setMaxCount(cabManager->cabinetColCount());
+    ui->lock_col->setCurrentIndex(0);
+//    ui->lock_row->setMaxCount();
 }
 
 QString RfidWidget::cellStyle(QColor rgb)
@@ -497,4 +511,33 @@ void RfidWidget::on_delCab_clicked()
 void RfidWidget::on_cabType_currentIndexChanged(const QString &arg1)
 {
     cabSplit(arg1, ui->preCab);
+}
+
+void RfidWidget::on_serverAddr_editingFinished()
+{
+    QString str = ui->serverAddr->text();
+
+    if(str.split('.').count() > 4)
+    {
+        int index = str.lastIndexOf('.');
+        str.replace(index,1,':');
+        ui->serverAddr->setText(str);
+    }
+}
+
+void RfidWidget::on_save_settings_clicked()
+{
+    ui->msg_set->clear();
+    if(!cabManager->setServerAddress(ui->serverAddr->text()))
+    {
+        ui->msg_set->setText("服务器地址非法,应为:IP:Port");
+    }
+
+    ui->widgetStack->setCurrentIndex(0);
+}
+
+void RfidWidget::on_set_clicked()
+{
+    ui->widgetStack->setCurrentIndex(1);
+    initLockConfig();
 }

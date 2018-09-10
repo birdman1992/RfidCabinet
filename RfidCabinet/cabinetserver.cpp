@@ -42,6 +42,7 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
 {
     manager = new QNetworkAccessManager(this);
     cur_manager = new UserInfo();
+    cabManager = CabinetManager::manager();
     checkList = NULL;
     reply_register = NULL;
     reply_login = NULL;
@@ -72,30 +73,23 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
 #endif
 }
 
-bool CabinetServer::installGlobalConfig(CabinetConfig *globalConfig)
+bool CabinetServer::initcabManager()
 {
-    if(globalConfig == NULL)
-        return false;
-    config = globalConfig;
-
-    if(config->getCabinetId().isEmpty())
-        return true;
-
-    ApiAddress = config->getServerAddress();
+    ApiAddress = cabManager->getServerAddress();
 //    if(ApiAddress.isEmpty())
 //    {
 //        ApiAddress = SERVER_ADDR;
-//        config->setServerAddress(ApiAddress);
+//        cabManager->setServerAddress(ApiAddress);
 //    }
     checkTime();
-//    config->getCabinetId();
+//    cabManager->getCabinetId();
 
-//    if(config->getCabinetId().isEmpty())
+//    if(cabManager->getCabinetId().isEmpty())
 //        cabRegister();
 //    requireListState();
 //    {
 //        regId = "835999";
-//        config->setCabinetId(regId);
+//        cabManager->setCabinetId(regId);
 //    }
 
     return true;
@@ -110,7 +104,7 @@ void CabinetServer::cabRegister()
 {
 #ifdef NO_SERVER
     qDebug()<<"[Cabinet register]:success"<<regId;
-    config->setCabinetId(regId);
+    cabManager->setCabinetId(regId);
 #endif
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     regId = QString::number(qrand()%1000000);
@@ -157,7 +151,7 @@ void CabinetServer::checkSysTime(QDateTime _time)
 
 void CabinetServer::requireListState()
 {
-    QByteArray qba = QString("{\"code\":\"%1\"}").arg(config->getCabinetId()).toUtf8();
+    QByteArray qba = QString("{\"code\":\"%1\"}").arg(cabManager->getCabinetId()).toUtf8();
     QString url = ApiAddress + QString(API_REQ_LIST) +'?'+ qba.toBase64();
 
     replyCheck(reply_list_state);
@@ -183,11 +177,12 @@ void CabinetServer::netTimeStart()
     QTimer::singleShot(10000,this,SLOT(netTimeout()));
 }
 
+//=
 void CabinetServer::localCacheAccess()
 {
-    list_access_cache = config->getFetchList();
+//    list_access_cache = cabManager->getFetchList();
 
-    accessLoop();
+//    accessLoop();
 }
 
 void CabinetServer::accessLoop()
@@ -241,13 +236,13 @@ void CabinetServer::getServerAddr(QString addr)
     qDebug("[getServerAddr]");
     ApiAddress = QString("http://") + addr;
     needSaveAddress = true;
-//    config->setServerAddress(ApiAddress);
+//    cabManager->setServerAddress(ApiAddress);
 
-//    if(config->getCabinetId().isEmpty())
+//    if(cabManager->getCabinetId().isEmpty())
 //        cabRegister();
 //    {
 //        regId = "835999";
-//        config->setCabinetId(regId);
+//        cabManager->setCabinetId(regId);
 //    }
     checkTime();
 }
@@ -257,7 +252,7 @@ void CabinetServer::userLogin(QString userId)
 //#ifdef NO_SERVER
 //    emit loginRst(true);
 //#endif
-    QByteArray qba = QString("{\"cardId\":\"%2\",\"departId\":\"%1\"}").arg(config->getCabinetId()).arg(userId).toUtf8();
+    QByteArray qba = QString("{\"cardId\":\"%2\",\"departId\":\"%1\"}").arg(cabManager->getCabinetId()).arg(userId).toUtf8();
     QString nUrl = ApiAddress+QString(API_LOGIN)+'?'+qba.toBase64();
     qDebug()<<"[login]"<<nUrl;
     qDebug()<<qba;
@@ -281,19 +276,20 @@ void CabinetServer::listCheck(QString code)
     connect(reply_list_check, SIGNAL(finished()), this, SLOT(recvListCheck()));
 }
 
+//=
 void CabinetServer::cabInfoUpload()
 {
-    QByteArray qba = config->creatCabinetJson();
-    QString nUrl = ApiAddress+QString(API_INFO_UPLOAD)+"?"+qba.toBase64();
-    qDebug()<<"[cabInfoUpload]"<<nUrl<<qba;
-    replyCheck(reply_cabinet_info);
-    reply_cabinet_info = manager->get(QNetworkRequest(QUrl(nUrl)));
-    connect(reply_cabinet_info, SIGNAL(finished()), this, SLOT(recvInfoUploadResult()));
+//    QByteArray qba = cabManager->creatCabinetJson();
+//    QString nUrl = ApiAddress+QString(API_INFO_UPLOAD)+"?"+qba.toBase64();
+//    qDebug()<<"[cabInfoUpload]"<<nUrl<<qba;
+//    replyCheck(reply_cabinet_info);
+//    reply_cabinet_info = manager->get(QNetworkRequest(QUrl(nUrl)));
+//    connect(reply_cabinet_info, SIGNAL(finished()), this, SLOT(recvInfoUploadResult()));
 }
 
 void CabinetServer::cabInfoReq()
 {
-    QByteArray qba = QString("{\"chesetCode\"\":%1\"}").arg(config->getCabinetId()).toUtf8();
+    QByteArray qba = QString("{\"chesetCode\"\":%1\"}").arg(cabManager->getCabinetId()).toUtf8();
     QString nUrl = ApiAddress+QString(API_INFO_REQ)+"?"+qba.toBase64();
     qDebug()<<"[cabInfoReq]"<<nUrl<<qba;
 }
@@ -311,7 +307,7 @@ void CabinetServer::cabCloneReq(QString oldCabinetId)
 
 void CabinetServer::cabInfoSync()//同步柜子库存信息
 {
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"code\":\"%1\"}").arg(cabId).toUtf8();
     QString nUrl = ApiAddress+QString(API_CLONE_REQ)+"?"+qba.toBase64();
     needClearBeforeClone = true;
@@ -323,7 +319,7 @@ void CabinetServer::cabInfoSync()//同步柜子库存信息
 
 void CabinetServer::cabColInsert(int pos, int num)
 {
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"departCode\":\"%1\",\"col\":[\"%2\",\"%3\"]}").arg(cabId).arg(pos).arg(num).toUtf8();
     QString nUrl = ApiAddress+QString(API_INSERT_COL)+"?"+qba.toBase64();
     replyCheck(reply_update_col);
@@ -339,9 +335,9 @@ void CabinetServer::cabinetBind(int seqNum, int index, QString goodsId)
         emit bindRst(false);
         return;
     }
-    QString optId = config->getOptId();
-    QString caseId = QString::number(config->getLockId(seqNum, index));
-    QString cabinetId = config->getCabinetId();
+    QString optId = logId;
+    QString caseId = QString::number(cabManager->getLockId(seqNum, index));
+    QString cabinetId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"optName\":\"%6\",\"goodsId\":\"%1\",\"chesetCode\":\"%2\",\"goodsCode\":\"%3\",\"cabinetRow\":%4,\"cabinetCol\":%5}").arg(goodsId).arg(cabinetId).arg(caseId).arg(index).arg(seqNum).arg(optId).toUtf8();
 //    QByteArray qba = QString("{\"goodId\":\"%1\",\"chesetCode\":\"%2\",\"caseId\":\"%3\"}").arg(goodsId).arg(cabinetId).arg(caseId).toUtf8();
     QString nUrl = ApiAddress+QString(API_CAB_BIND)+"?"+qba.toBase64();
@@ -353,9 +349,9 @@ void CabinetServer::cabinetBind(int seqNum, int index, QString goodsId)
 
 void CabinetServer::goodsAccess(CaseAddress addr, QString id, int num, int optType)
 {qDebug()<<addr.cabinetSeqNum<<id<<num<<optType;
-    QString caseId = QString::number(config->getLockId(addr.cabinetSeqNum, addr.caseIndex));
-    QString cabinetId = config->getCabinetId();
-    QString optName = config->getOptId();
+    QString caseId = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex));
+    QString cabinetId = cabManager->getCabinetId();
+    QString optName = logId;
     QByteArray qba;
 
     if(optType == 2)
@@ -393,12 +389,12 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
     for(i=0; i<list.count(); i++)
     {
         pack_bar = list.at(i);
-        QString pack_id = config->scanDataTrans(pack_bar);
+        QString pack_id = cabManager->scanDataTrans(pack_bar);
         QByteArray packageBarcode = pack_bar.toLocal8Bit();
-        QByteArray chesetCode = config->getCabinetId().toLocal8Bit();
+        QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
         QByteArray barcode = barCode.toLocal8Bit();
-        CaseAddress addr = config->checkCabinetByBarCode(pack_id);
-        QByteArray goodsCode = QString::number(config->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
+        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
+        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
 
         cJSON* obj = cJSON_CreateObject();
         cJSON_AddItemToObject(obj, "packageBarcode",cJSON_CreateString(packageBarcode.data()));
@@ -420,7 +416,7 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
         cJSON_AddItemToArray(jlist, obj);
     }
     cJSON_AddItemToObject(json, "li",jlist);
-    QByteArray optId = config->getOptId().toLocal8Bit();
+    QByteArray optId = logId.toLocal8Bit();
     cJSON_AddItemToObject(json,"optName", cJSON_CreateString(optId.data()));
     char* buff = cJSON_Print(json);
 
@@ -429,7 +425,7 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
 
     if(!networkState)
     {
-        config->saveFetchList(qba.toBase64());
+        cabManager->saveFetchList(qba.toBase64());
         free(buff);
     }
     else
@@ -452,7 +448,7 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
 
 void CabinetServer::goodsCheckReq()
 {
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"departCode\":\"%1\"}").arg(cabId).toUtf8();
     QString nUrl = ApiAddress+QString(API_CHECK_CREAT)+"?"+qba.toBase64();
     replyCheck(reply_goods_check);
@@ -465,7 +461,7 @@ void CabinetServer::goodsCheckFinish()
 {
     if(checkId == -1)
         return;
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"departCode\":\"%1\"}").arg(cabId).toUtf8();
     QString nUrl = ApiAddress+QString(API_CHECK_END)+"?"+qba.toBase64();
     replyCheck(reply_goods_check);
@@ -482,8 +478,8 @@ void CabinetServer::goodsCheck(QList<CabinetCheckItem *> l, CaseAddress addr)
     CabinetCheckItem* item;
     int i = 0;
 
-    QByteArray chesetCode = config->getCabinetId().toLocal8Bit();
-    QByteArray goodsCode = QString::number(config->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
+    QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
+    QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
     cJSON_AddItemToObject(json, "departCode", cJSON_CreateString(chesetCode.data()));
     cJSON_AddItemToObject(json, "cabinetId", cJSON_CreateString(goodsCode.data()));
 
@@ -507,7 +503,7 @@ void CabinetServer::goodsCheck(QList<CabinetCheckItem *> l, CaseAddress addr)
         cJSON_AddItemToArray(packageList, package);
     }
     cJSON_AddItemToObject(json, "packageList",packageList);
-    QByteArray optId = config->getOptId().toLocal8Bit();
+    QByteArray optId = logId.toLocal8Bit();
     cJSON_AddItemToObject(json,"optName", cJSON_CreateString(optId.data()));
 
     char* buff = cJSON_Print(json);
@@ -533,10 +529,10 @@ void CabinetServer::goodsCheck(QStringList l, CaseAddress)
     cJSON* jlist = cJSON_CreateArray();
     int i = 0;
 
-    QByteArray optId = config->getOptId().toLocal8Bit();
+    QByteArray optId = logId.toLocal8Bit();
     cJSON_AddItemToObject(json,"optName", cJSON_CreateString(optId.data()));
 
-    QByteArray chesetCode = config->getCabinetId().toLocal8Bit();
+    QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
     cJSON_AddItemToObject(json, "departCode", cJSON_CreateString(chesetCode.data()));
 
     for(i=0; i<l.count(); i++)
@@ -582,10 +578,10 @@ void CabinetServer::goodsListStore(QList<CabinetStoreListItem *> l)
         qDebug()<<goodsItem->itemId()<<goodsItem->itemNum();
         QString pack_id = goodsItem->itemId();
         QByteArray packageBarcode = goodsItem->itemId().toLocal8Bit();
-        QByteArray chesetCode = config->getCabinetId().toLocal8Bit();
-        CaseAddress addr = config->checkCabinetByBarCode(pack_id);
+        QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
+        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
         QByteArray barcode = barCode.toLocal8Bit();
-        QByteArray goodsCode = QString::number(config->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
+        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
         cJSON* obj = cJSON_CreateObject();
         cJSON_AddItemToObject(obj, "packageBarcode",cJSON_CreateString(packageBarcode.data()));
         cJSON_AddItemToObject(obj, "chesetCode", cJSON_CreateString(chesetCode.data()));
@@ -597,7 +593,7 @@ void CabinetServer::goodsListStore(QList<CabinetStoreListItem *> l)
     }
     cJSON_AddItemToObject(json, "li",jlist);
 
-    QByteArray optId = config->getOptId().toLocal8Bit();
+    QByteArray optId = logId.toLocal8Bit();
     cJSON_AddItemToObject(json,"optName", cJSON_CreateString(optId.data()));
 
     char* buff = cJSON_Print(json);
@@ -635,7 +631,7 @@ void CabinetServer::goodsBack(QString)
 
 void CabinetServer::requireCheckTables(QDate start, QDate finish)
 {
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"departCode\":\"%1\",\"sTime\":\"%2 00:00:00\",\"eTime\":\"%3 23:59:59\"}").arg(cabId).arg(start.toString("yyyy-MM-dd")).arg(finish.toString("yyyy-MM-dd")).toUtf8();
     QString nUrl = ApiAddress+QString(API_CHECK_TABLES)+"?"+qba.toBase64();
     replyCheck(reply_check_tables);
@@ -646,7 +642,7 @@ void CabinetServer::requireCheckTables(QDate start, QDate finish)
 
 void CabinetServer::requireCheckTableInfo(QString id)
 {
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"id\":\"%1\"}").arg(id.toInt()).toUtf8();
     QString nUrl = ApiAddress+QString(API_CHECK_INFO)+"?"+qba.toBase64();
     replyCheck(reply_check_table_info);
@@ -658,7 +654,7 @@ void CabinetServer::requireCheckTableInfo(QString id)
 //获取日清单信息
 void CabinetServer::requireListInfo(QDate sDate, QDate eDate)
 {
-    QString cabId = config->getCabinetId();
+    QString cabId = cabManager->getCabinetId();
     QByteArray qba = QString("{\"departCode\":\"%1\", \"sTime\":\"%2\",\"eTime\":\"%3\"}").arg(cabId).arg(sDate.toString("yyyy-MM-dd")).arg(eDate.toString("yyyy-MM-dd")).toUtf8();
     QString nUrl = ApiAddress+QString(API_DAY_REPORT)+"?"+qba.toBase64();
     replyCheck(reply_day_report);
@@ -669,7 +665,7 @@ void CabinetServer::requireListInfo(QDate sDate, QDate eDate)
 
 void CabinetServer::searchSpell(QString spell)
 {
-    QByteArray qba = QString("{\"spell\":\"%1\", \"departCode\":\"%2\"}").arg(spell).arg(config->getCabinetId()).toLocal8Bit();
+    QByteArray qba = QString("{\"spell\":\"%1\", \"departCode\":\"%2\"}").arg(spell).arg(cabManager->getCabinetId()).toLocal8Bit();
     QString nUrl = ApiAddress+QString(API_SEARCH_SPELL)+"?"+qba.toBase64();
     replyCheck(reply_search_spell);
     reply_search_spell = manager->get(QNetworkRequest(QUrl(nUrl)));
@@ -680,7 +676,7 @@ void CabinetServer::searchSpell(QString spell)
 void CabinetServer::replyRequire(QList<GoodsCheckInfo *> l)
 {
     QByteArray optName = cur_user->cardId.toLocal8Bit();
-    QByteArray departCode = config->getCabinetId().toLocal8Bit();
+    QByteArray departCode = cabManager->getCabinetId().toLocal8Bit();
 
     cJSON* json = cJSON_CreateObject();
     cJSON_AddItemToObject(json, "optName", cJSON_CreateString(optName.data()));
@@ -722,8 +718,8 @@ void CabinetServer::recvCabRegister()
     if(json_rst->type == cJSON_True)
     {
         qDebug()<<"[Cabinet register]:success"<<regId;
-        config->setCabinetId(regId);
-        qDebug()<<"reg"<<config->getCabinetId();
+        cabManager->setCabinetId(regId);
+        qDebug()<<"reg"<<cabManager->getCabinetId();
         emit idUpdate();
         emit regResult(true);
     }
@@ -771,8 +767,8 @@ void CabinetServer::recvUserLogin()
         qDebug()<<"[recvUserLogin]"<<info->cardId<<info->power;
         cur_user = info;
         emit loginRst(info);
-        config->addUser(info);
-        config->wakeUp(TIMEOUT_BASE);
+        cabManager->addUser(info);
+        cabManager->wakeUp(TIMEOUT_BASE);
         networkState = true;
     }
     else
@@ -905,7 +901,7 @@ void CabinetServer::recvListCheck()
         }
         cJSON* json_list_info = cJSON_GetObjectItem(json_data,"store");
         list->barcode = QString::fromUtf8(cJSON_GetObjectItem(json_list_info, "barcode")->valuestring);
-        if(config->getCabinetId() == QString::fromUtf8(cJSON_GetObjectItem(json_list_info, "departName")->valuestring))
+        if(cabManager->getCabinetId() == QString::fromUtf8(cJSON_GetObjectItem(json_list_info, "departName")->valuestring))
         {
             emit listRst(list);
         }
@@ -1169,20 +1165,20 @@ void CabinetServer::recvDateTime()
 //    if(!needSaveAddress)
 //        return;
 //    needSaveAddress = false;
-//    config->setServerAddress(ApiAddress);
+//    cabManager->setServerAddress(ApiAddress);
 
-//    if(config->getCabinetId().isEmpty())
+//    if(cabManager->getCabinetId().isEmpty())
 //        cabRegister();
 //    {
 //        regId = "835999";
-//        config->setCabinetId(regId);
+//        cabManager->setCabinetId(regId);
 //    }
 }
 
 void CabinetServer::recvDateTimeError(QNetworkReply::NetworkError code)
 {
     qDebug()<<code;
-    config->clearConfig();
+    cabManager->clearcabManager();
 }
 
 void CabinetServer::recvListState()
@@ -1275,7 +1271,7 @@ void CabinetServer::recvCabClone()
             info->id = QString(cJSON_GetObjectItem(item, "goodsId")->valuestring);
             info->goodsType = cJSON_GetObjectItem(item, "goodsType")->valueint;
             info->unit = QString(cJSON_GetObjectItem(item, "unit")->valuestring);
-            info->Py = config->getPyCh(info->name);//qDebug()<<"[PY]"<<info->Py;
+            info->Py = cabManager->getPyCh(info->name);//qDebug()<<"[PY]"<<info->Py;
             info->packageId = info->id;
 
             if(info->goodsType<10)
@@ -1286,7 +1282,7 @@ void CabinetServer::recvCabClone()
             if(info->abbName.isEmpty())
                 info->abbName = getAbbName(info->name);
 //            qDebug()<<"[newGoods]"<<row<<col<<info->name<<info->abbName<<info->id<<info->packageId<<info->num<<info->unit;
-            config->insertGoods(info, row, col);
+            cabManager->insertGoods(info, row, col);
         }
     }
     else
@@ -1326,7 +1322,7 @@ void CabinetServer::recvCabSync()
         if(needClearBeforeClone)
         {
             needClearBeforeClone = false;
-            config->clearGoodsConfig();
+            cabManager->clearGoodscabManager();
             emit insertRst(true);
         }
         int listSize = cJSON_GetArraySize(json_data);
@@ -1346,7 +1342,7 @@ void CabinetServer::recvCabSync()
             info->id = QString(cJSON_GetObjectItem(item, "goodsId")->valuestring);
             info->goodsType = cJSON_GetObjectItem(item, "goodsType")->valueint;
             info->unit = QString(cJSON_GetObjectItem(item, "unit")->valuestring);
-            info->Py = config->getPyCh(info->name);//qDebug()<<"[PY]"<<info->Py;
+            info->Py = cabManager->getPyCh(info->name);//qDebug()<<"[PY]"<<info->Py;
             info->packageId = info->id;
 
             if(info->goodsType<10)
@@ -1358,7 +1354,7 @@ void CabinetServer::recvCabSync()
                 info->abbName = getAbbName(info->name);
 
             qDebug()<<"[newGoods]"<<row<<col<<info->name<<info->abbName<<info->id<<info->packageId<<info->num<<info->unit;
-            config->syncGoods(info, row, col);
+            cabManager->syncGoods(info, row, col);
         }
     }
     else
@@ -1388,7 +1384,7 @@ void CabinetServer::recvColInsert()
     cJSON* json_rst = cJSON_GetObjectItem(json, "success");
     if(json_rst->type == cJSON_True)
     {
-//        config->clearGoodsConfig();
+//        cabManager->clearGoodscabManager();
         needClearBeforeClone = true;
         cabInfoSync();
     }
@@ -1623,19 +1619,19 @@ void CabinetServer::netTimeout()
     {
         if(apiState == 1)//登录
         {
-            if(config->checkManagers(logId))
+            if(cabManager->checkManagers(logId))
             {
                 cur_manager->name = "管理员";
                 cur_manager->power = 0;
                 cur_manager->cardId = logId;
                 cur_user = cur_manager;
 
-                config->wakeUp(TIMEOUT_FETCH);
+                cabManager->wakeUp(TIMEOUT_FETCH);
                 emit loginRst(cur_user);
             }
             else
             {
-                cur_user = config->checkUserLocal(logId);
+                cur_user = cabManager->checkUserLocal(logId);
                 qDebug()<<"check null";
                 if(cur_user == NULL)
                 {
@@ -1643,7 +1639,7 @@ void CabinetServer::netTimeout()
                     return;
                 }
                 qDebug()<<"check"<<cur_user->cardId;
-                config->wakeUp(TIMEOUT_FETCH);
+                cabManager->wakeUp(TIMEOUT_FETCH);
                 emit loginRst(cur_user);
             }
         }
@@ -1675,17 +1671,17 @@ void CabinetServer::sysTimeout()
         disconnect(&sysClock, SIGNAL(timeout()), this, SLOT(sysTimeout()));
         checkTime();
 
-        if(config->sleepFlagTimeout())
+        if(cabManager->sleepFlagTimeout())
         {
             qDebug("[lock]");
             emit sysLock();
         }
         return;
     }
-    if(needReqCar&& config->state == STATE_NO)
+    if(needReqCar&& cabManager->state == STATE_NO)
         requireListState();
 
-    if(config->sleepFlagTimeout())
+    if(cabManager->sleepFlagTimeout())
     {
         qDebug("[lock]");
         emit sysLock();
@@ -1694,6 +1690,6 @@ void CabinetServer::sysTimeout()
 
 void CabinetServer::updateAddress()
 {
-    ApiAddress = config->getServerAddress();
+    ApiAddress = cabManager->getServerAddress();
 }
 

@@ -12,6 +12,7 @@
 #include "device/repertorymanager.h"
 #include "Structs/cabinetinfo.h"
 #include "RfidCell/cabinet.h"
+#include "manager/cabinetmanager.h"
 #include <QList>
 #include <QRect>
 #include <qmap.h>
@@ -40,6 +41,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *);
+    void showEvent(QShowEvent *);
 private slots:
     void on_save_clicked();
     void on_back_clicked();
@@ -54,6 +56,12 @@ private slots:
     void on_delCab_clicked();
 
     void on_cabType_currentIndexChanged(const QString &arg1);
+
+    void on_serverAddr_editingFinished();
+
+    void on_save_settings_clicked();
+
+    void on_set_clicked();
 
 signals:
     void doorStareChanged(bool isOpen);
@@ -79,10 +87,12 @@ private:
     QStringList listLayout;
     QMap<int, RfidAnt*> antsMap;
     RepertoryManager* repManager;
+    CabinetManager* cabManager;
 
     void initMenu();
     void initAnt();//初始化天线
     void initCabType(QStringList typeList);//初始化柜子类型
+    void initLockConfig();//初始化锁控配置
     void setMenuPow(int _pow);//设置菜单权限等级
     void creatRfidCells();
     void creatDeafultAnts();

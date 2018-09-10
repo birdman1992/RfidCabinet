@@ -14,5 +14,7 @@
 #define FILE_CONFIG_CABINET_LAYOUT "/home/config/cabinet.layout"
 #define FILE_CONFIG_REP "/home/config/"
 
+#define DEFAULT_SERVER "192.168.0.105:8080"
+
 
 #endif // CONFIG_H

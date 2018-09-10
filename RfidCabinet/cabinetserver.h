@@ -8,14 +8,17 @@
 #include <QProcess>
 #include <QTimer>
 #include <QStringList>
+#include <QList>
 
-#include "cabinetconfig.h"
+//#include "cabinetconfig.h"
 #include "Structs/userinfo.h"
 #include "Json/cJSON.h"
 #include "Structs/goodslist.h"
 #include "Structs/goodscar.h"
 #include "Structs/goodscheckinfo.h"
 #include "Structs/dayreportinfo.h"
+#include "Structs/caseaddress.h"
+#include "manager/cabinetmanager.h"
 #include "Widgets/cabinetcheckitem.h"
 #include "Widgets/cabinetstorelistitem.h"
 
@@ -26,12 +29,13 @@ class CabinetServer : public QObject
 public:
     explicit CabinetServer(QObject *parent = 0);
 
-    bool installGlobalConfig(CabinetConfig *globalConfig);
+    bool initConfig();
     void waitForListTimeout();//等待送货车超时
-
+    bool initcabManager();
 private:
     QNetworkAccessManager* manager;
-    CabinetConfig* config;
+    CabinetManager* cabManager;
+//    CabinetConfig* config;
     QNetworkReply* reply_register;
     QNetworkReply* reply_login;
     QNetworkReply* reply_list_check;
