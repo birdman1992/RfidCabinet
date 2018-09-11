@@ -2,7 +2,19 @@
 #include "config.h"
 #include <QDebug>
 
+RepertoryManager* RepertoryManager::m = new RepertoryManager;
+
 RepertoryManager::RepertoryManager(QObject *parent) : QObject(parent)
+{
+
+}
+
+RepertoryManager *RepertoryManager::manager()
+{
+    return m;
+}
+
+void RepertoryManager::clearRepertory()
 {
 
 }

@@ -7,7 +7,7 @@ CabinetManager::CabinetManager(QObject *parent) : QObject(parent)
 
 }
 
-static CabinetManager *CabinetManager::manager()
+CabinetManager* CabinetManager::manager()
 {
     return m;
 }
@@ -60,17 +60,17 @@ QPoint CabinetManager::getCabCtrlWorld(QPoint caseAddr)
 
 QString CabinetManager::getServerAddress()
 {
-    getConfig("ServerAddress", DEFAULT_SERVER);
+    return getConfig("ServerAddress", DEFAULT_SERVER).toString();
 }
 
 QString CabinetManager::getCabinetId()
 {
-    getConfig("CabinetId", QString());
+    return getConfig("CabinetId", QString()).toString();
 }
 
 int CabinetManager::getLockId(int col, int row)
 {
-    QString layout = getConfig("layout", QString());
+    QString layout = getConfig("layout", QString()).toString();
     QStringList layouts = layout.split("#", QString::SkipEmptyParts);
     int ret = 0;
 
@@ -84,7 +84,7 @@ int CabinetManager::getLockId(int col, int row)
 
 int CabinetManager::cabinetColCount()
 {
-    QString layout = getConfig("layout", QString());
+    QString layout = getConfig("layout", QString()).toString();
     if(layout.isEmpty())
         return 0;
 
@@ -93,7 +93,7 @@ int CabinetManager::cabinetColCount()
 
 int CabinetManager::cabinetRowCount(int col)
 {
-    QString layout = getConfig("layout", QString());
+    QString layout = getConfig("layout", QString()).toString();
     if(layout.isEmpty())
         return 0;
 
@@ -111,17 +111,75 @@ void CabinetManager::clearConfig()
 
 QString CabinetManager::getPyCh(QString name)
 {
-    return ChineseLetterHelper::GetFirstLettersAll(str);
+    return ChineseLetterHelper::GetFirstLettersAll(name);
 }
 
-void CabinetManager::addUser(QString id)
+void CabinetManager::addUser(UserInfo* user)
 {
+    if(user == NULL)
+    {
+        qDebug()<<"[addUser]"<<"user info is null";
+    }
 
+    if(checkUserLocal(user->cardId) != NULL)
+        return;
+    qDebug()<<"[addUser]"<<user->cardId;
+
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT,QSettings::IniFormat);
+    settings.beginGroup(QString("Users"));
+    int index = settings.beginReadArray("user");
+    settings.endArray();
+    settings.beginWriteArray("user");
+    settings.setArrayIndex(index);
+    settings.setValue("name",QVariant(user->name));
+    settings.setValue("power", QVariant(user->power));
+    settings.setValue("cardId",QVariant(user->cardId));
+    settings.endArray();
+    settings.endGroup();
+}
+
+UserInfo *CabinetManager::checkUserLocal(QString userId)
+{
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT,QSettings::IniFormat);
+    UserInfo* ret = NULL;
+    settings.beginGroup(QString("Users"));
+    int index = settings.beginReadArray("user");
+    for(int i=0; i< index; i++)
+    {
+        settings.setArrayIndex(index);
+        if(userId == settings.value("cardId", QString()).toString())
+        {
+            ret->cardId = settings.value("cardId", QString()).toString();
+            ret->name = settings.value("name", QString()).toString();
+            ret->power = settings.value("power", 0).toInt();
+        }
+    }
+    settings.endArray();
+    settings.endGroup();
+    return ret;
 }
 
 bool CabinetManager::checkManagers(QString id)
 {
+    QFile fManager("/home/config/managers.ini");
 
+    if(!fManager.exists())
+        return false;
+
+    fManager.open(QFile::ReadOnly);
+    QString managerStr = QString(fManager.readAll());
+    fManager.close();
+
+    QStringList managers = managerStr.split(' ');
+//    qDebug()<<"[managers]"<<managers<<userId<<managers.indexOf(userId);
+//    qDebug()<<managers.at(7);
+
+    if(managers.isEmpty())
+        return false;
+    if(managers.indexOf(id) == -1)
+        return false;
+    else
+        return true;
 }
 
 QString CabinetManager::scanDataTrans(QString data)
@@ -152,20 +210,20 @@ QByteArray CabinetManager::defaultCtrlWord(int col)
 /********base functions*******/
 void CabinetManager::setConfig(QString key, QVariant value)
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
     settings.setValue(key, value);
     settings.sync();
 }
 
 QVariant CabinetManager::getConfig(QString key, QVariant defaultRet)
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
     return settings.value(key, defaultRet);
 }
 
 void CabinetManager::removeConfig(QString path)
 {
-    QSettings settings(configPath, QSettings::IniFormat);
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
     settings.remove(path);
 }
 /********base functions end*******/

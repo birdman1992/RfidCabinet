@@ -19,6 +19,7 @@
 #include "Structs/dayreportinfo.h"
 #include "Structs/caseaddress.h"
 #include "manager/cabinetmanager.h"
+#include "device/repertorymanager.h"
 #include "Widgets/cabinetcheckitem.h"
 #include "Widgets/cabinetstorelistitem.h"
 
@@ -35,6 +36,7 @@ public:
 private:
     QNetworkAccessManager* manager;
     CabinetManager* cabManager;
+    RepertoryManager* repManager;
 //    CabinetConfig* config;
     QNetworkReply* reply_register;
     QNetworkReply* reply_login;

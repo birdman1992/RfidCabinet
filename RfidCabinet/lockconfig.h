@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "manager/cabinetmanager.h"
 
+//unuse class
 namespace Ui {
 class LockConfig;
 }

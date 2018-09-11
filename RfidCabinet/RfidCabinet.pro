@@ -58,10 +58,10 @@ SOURCES += \
     Structs/goodscheckinfo.cpp \
     Structs/dayreportinfo.cpp \
     manager/cabinetmanager.cpp \
-    device/Hid/qhid.cpp \
-    device/Hid/hid.c \
     lockconfig.cpp \
-    funcs/chineseletterhelper.cpp
+    funcs/chineseletterhelper.cpp \
+    Widgets/cabinetcheckitem.cpp \
+    Widgets/cabinetstorelistitem.cpp
 
 HEADERS += \
         widget.h \
@@ -98,10 +98,10 @@ HEADERS += \
     Structs/goodscheckinfo.h \
     Structs/dayreportinfo.h \
     manager/cabinetmanager.h \
-    device/Hid/qhid.h \
-    device/Hid/hid.h \
     lockconfig.h \
-    funcs/chineseletterhelper.h
+    funcs/chineseletterhelper.h \
+    Widgets/cabinetcheckitem.h \
+    Widgets/cabinetstorelistitem.h
 
 FORMS += \
         widget.ui \
@@ -109,7 +109,9 @@ FORMS += \
     casepanel.ui \
     RfidCell/rfidarea.ui \
     device/devicesimulator.ui \
-    lockconfig.ui
+    lockconfig.ui \
+    Widgets/cabinetcheckitem.ui \
+    Widgets/cabinetstorelistitem.ui
 
 RESOURCES += \
     image.qrc

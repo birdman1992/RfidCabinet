@@ -19,7 +19,7 @@ RfidWidget::RfidWidget(QWidget *parent) :
     colCount = 1;
     spanX = -1;
     spanY = -1;
-    repManager = new RepertoryManager(this);
+    repManager = RepertoryManager::manager();
     screenPos = QPoint(-1,-1);
     needSelScreen = true;
 

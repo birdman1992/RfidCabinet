@@ -43,6 +43,7 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
     manager = new QNetworkAccessManager(this);
     cur_manager = new UserInfo();
     cabManager = CabinetManager::manager();
+    repManager = RepertoryManager::manager();
     checkList = NULL;
     reply_register = NULL;
     reply_login = NULL;
@@ -393,8 +394,8 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
         QByteArray packageBarcode = pack_bar.toLocal8Bit();
         QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
         QByteArray barcode = barCode.toLocal8Bit();
-        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
-        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
+//        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
+//        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
 
         cJSON* obj = cJSON_CreateObject();
         cJSON_AddItemToObject(obj, "packageBarcode",cJSON_CreateString(packageBarcode.data()));
@@ -404,7 +405,7 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
         {
             cJSON_AddItemToObject(obj, "barcode", cJSON_CreateString(barcode.data()));
         }
-        cJSON_AddItemToObject(obj, "goodsCode", cJSON_CreateString(goodsCode.data()));
+//        cJSON_AddItemToObject(obj, "goodsCode", cJSON_CreateString(goodsCode.data()));
         cJSON_AddItemToObject(obj, "optCount", cJSON_CreateNumber(1));
         if(cur_user != NULL)
         {
@@ -579,14 +580,14 @@ void CabinetServer::goodsListStore(QList<CabinetStoreListItem *> l)
         QString pack_id = goodsItem->itemId();
         QByteArray packageBarcode = goodsItem->itemId().toLocal8Bit();
         QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
-        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
+//        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
         QByteArray barcode = barCode.toLocal8Bit();
-        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
+//        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
         cJSON* obj = cJSON_CreateObject();
         cJSON_AddItemToObject(obj, "packageBarcode",cJSON_CreateString(packageBarcode.data()));
         cJSON_AddItemToObject(obj, "chesetCode", cJSON_CreateString(chesetCode.data()));
         cJSON_AddItemToObject(obj, "optType", cJSON_CreateNumber(optType));
-        cJSON_AddItemToObject(obj, "goodsCode", cJSON_CreateString(goodsCode.data()));
+//        cJSON_AddItemToObject(obj, "goodsCode", cJSON_CreateString(goodsCode.data()));
         cJSON_AddItemToObject(obj, "optCount", cJSON_CreateNumber(goodsItem->itemNum()));
         cJSON_AddItemToObject(obj, "barcode", cJSON_CreateString(barcode.data()));
         cJSON_AddItemToArray(jlist, obj);
@@ -768,7 +769,7 @@ void CabinetServer::recvUserLogin()
         cur_user = info;
         emit loginRst(info);
         cabManager->addUser(info);
-        cabManager->wakeUp(TIMEOUT_BASE);
+//        cabManager->wakeUp(TIMEOUT_BASE);
         networkState = true;
     }
     else
@@ -1178,7 +1179,7 @@ void CabinetServer::recvDateTime()
 void CabinetServer::recvDateTimeError(QNetworkReply::NetworkError code)
 {
     qDebug()<<code;
-    cabManager->clearcabManager();
+//    cabManager->clearcabManager();
 }
 
 void CabinetServer::recvListState()
@@ -1282,7 +1283,7 @@ void CabinetServer::recvCabClone()
             if(info->abbName.isEmpty())
                 info->abbName = getAbbName(info->name);
 //            qDebug()<<"[newGoods]"<<row<<col<<info->name<<info->abbName<<info->id<<info->packageId<<info->num<<info->unit;
-            cabManager->insertGoods(info, row, col);
+//            cabManager->insertGoods(info, row, col);
         }
     }
     else
@@ -1322,7 +1323,7 @@ void CabinetServer::recvCabSync()
         if(needClearBeforeClone)
         {
             needClearBeforeClone = false;
-            cabManager->clearGoodscabManager();
+            repManager->clearRepertory();
             emit insertRst(true);
         }
         int listSize = cJSON_GetArraySize(json_data);
@@ -1354,7 +1355,7 @@ void CabinetServer::recvCabSync()
                 info->abbName = getAbbName(info->name);
 
             qDebug()<<"[newGoods]"<<row<<col<<info->name<<info->abbName<<info->id<<info->packageId<<info->num<<info->unit;
-            cabManager->syncGoods(info, row, col);
+//            cabManager->syncGoods(info, row, col);
         }
     }
     else
@@ -1626,7 +1627,7 @@ void CabinetServer::netTimeout()
                 cur_manager->cardId = logId;
                 cur_user = cur_manager;
 
-                cabManager->wakeUp(TIMEOUT_FETCH);
+//                cabManager->wakeUp(TIMEOUT_FETCH);
                 emit loginRst(cur_user);
             }
             else
@@ -1639,7 +1640,7 @@ void CabinetServer::netTimeout()
                     return;
                 }
                 qDebug()<<"check"<<cur_user->cardId;
-                cabManager->wakeUp(TIMEOUT_FETCH);
+//                cabManager->wakeUp(TIMEOUT_FETCH);
                 emit loginRst(cur_user);
             }
         }

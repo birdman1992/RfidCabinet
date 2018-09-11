@@ -4,19 +4,28 @@
 #include <qlist.h>
 #include <QMap>
 
+#include <qstring.h>
+#include <QStringList>
+#include <qlist.h>
+#include <QMap>
+#include <QPoint>
+
 class Goods
 {
 public:
     Goods();
     Goods(QString _goodsId, QString goodsName, int goodsNum);
     Goods(Goods* goods);
+    QStringList codes;
     QString name;
     QString abbName;
     QString goodsId;
-    QString size;
+    QString size;//规格
     QString unit;
     QString packageBarcode;
     QString roomName;
+
+    QPoint pos;
     int packageType;
     int batchNumber;
     int takeCount;
