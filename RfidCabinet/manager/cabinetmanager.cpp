@@ -48,6 +48,11 @@ void CabinetManager::setCabinetId(QString id)
     setConfig("CabinetId", id);
 }
 
+void CabinetManager::setAntPow(int pow)
+{
+    setConfig("AntPow", pow);
+}
+
 QPoint CabinetManager::getCabCtrlWorld(QPoint caseAddr)
 {
     QString key = QString("CtrlWord/cabinet%1").arg(caseAddr.x());
@@ -66,6 +71,11 @@ QString CabinetManager::getServerAddress()
 QString CabinetManager::getCabinetId()
 {
     return getConfig("CabinetId", QString()).toString();
+}
+
+int CabinetManager::getAntPow()
+{
+    return getConfig("AntPow", 0x14).toInt();
 }
 
 int CabinetManager::getLockId(int col, int row)

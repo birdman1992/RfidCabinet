@@ -5,6 +5,7 @@
 #include <QPaintEvent>
 #include <QButtonGroup>
 #include <QModelIndex>
+#include <QLabel>
 #include "device/rfidant.h"
 #include "RfidCell/rfidarea.h"
 #include "device/rfiddevice.h"
@@ -38,6 +39,8 @@ public slots:
     void goodsOut(QList<GoodsInfo*>);
     void rfidIn(QList<rfidChangeInfo*>);
     void rfidOut(QList<rfidChangeInfo*>);
+    void rfidTest(QString);
+    void cabRegRst(bool);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -48,27 +51,24 @@ private slots:
     void on_cell_config_clicked();
     void on_clear_config_clicked();
     void on_test_open_clicked(bool checked);
-
     void on_preCab_clicked(const QModelIndex &index);
-
     void on_addCab_clicked();
-
     void on_delCab_clicked();
-
     void on_cabType_currentIndexChanged(const QString &arg1);
-
     void on_serverAddr_editingFinished();
-
     void on_save_settings_clicked();
-
     void on_set_clicked();
-
+    void on_cabReg_clicked();
+    void on_set_server_addr_clicked();
+    
 signals:
     void doorStareChanged(bool isOpen);
     void rfidStoreReq(QList<rfidChangeInfo*>);
     void rfidFetchReq(QList<rfidChangeInfo*>);
     void insertRfidReq(QStringList);
+    void cabRegReq();
     void test();
+    void updateServerAddress();
 
 private:
     Ui::RfidWidget *ui;
@@ -76,6 +76,7 @@ private:
     int colCount;
     bool onSpan;
     bool needSelScreen;
+    bool flagReg;
     QPoint screenPos;
     int spanX;
     int spanY;
@@ -93,7 +94,9 @@ private:
     void initAnt();//初始化天线
     void initCabType(QStringList typeList);//初始化柜子类型
     void initLockConfig();//初始化锁控配置
+    void checkCabinetId();
     void setMenuPow(int _pow);//设置菜单权限等级
+    void setMsgCorlor(QLabel* lab, QString color);
     void creatRfidCells();
     void creatDeafultAnts();
     void creatAntsMap();

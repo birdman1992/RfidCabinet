@@ -12,6 +12,7 @@ public:
     void append(QStringList l);
     void initEpcHash(QStringList l);
     void clearCache();
+    int epcNum();
 //    void checkNewAndDel();
     QStringList checkDel();
 

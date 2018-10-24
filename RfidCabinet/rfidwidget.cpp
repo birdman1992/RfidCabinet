@@ -15,6 +15,7 @@ RfidWidget::RfidWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     menu = NULL;
+    flagReg = false;
     rowCount = 1;
     colCount = 1;
     spanX = -1;
@@ -27,7 +28,10 @@ RfidWidget::RfidWidget(QWidget *parent) :
 
     initMenu();
     initCabType(QString(CAB_TYPE).split("#"));
+    //创建柜格布局
     creatRfidCells();
+    //检查柜子是否注册
+    checkCabinetId();
 }
 
 RfidWidget::~RfidWidget()
@@ -121,6 +125,25 @@ void RfidWidget::rfidOut(QList<rfidChangeInfo *> listFetch)
     }
 }
 
+void RfidWidget::rfidTest(QString)
+{
+    emit doorStareChanged(true);
+}
+
+void RfidWidget::cabRegRst(bool success)
+{
+    if(success)
+    {
+        ui->idLine->setText(cabManager->getCabinetId());
+        setMsgCorlor(ui->msg_reg, "rgb(50,250,50)");
+        ui->msg_reg->setText("注册成功");
+    }
+    else
+    {
+
+    }
+}
+
 void RfidWidget::paintEvent(QPaintEvent*)
 {
     QStyleOption opt;
@@ -176,7 +199,19 @@ void RfidWidget::initLockConfig()
 {
     ui->lock_col->setMaxCount(cabManager->cabinetColCount());
     ui->lock_col->setCurrentIndex(0);
-//    ui->lock_row->setMaxCount();
+    //    ui->lock_row->setMaxCount();
+}
+
+void RfidWidget::checkCabinetId()
+{
+//    if(cabManager->getCabinetId().isEmpty())//柜子未注册
+//    {
+//        ui->widgetStack->setCurrentIndex(1);
+//    }
+//    else
+    {
+        ui->widgetStack->setCurrentIndex(0);
+    }
 }
 
 QString RfidWidget::cellStyle(QColor rgb)
@@ -229,6 +264,13 @@ void RfidWidget::setMenuPow(int _pow)
     }
 }
 
+void RfidWidget::setMsgCorlor(QLabel *lab, QString color)
+{
+    if(lab == NULL)
+        return;
+    lab->setStyleSheet(QString("font: 16px \"微软雅黑\"; color:%1;").arg(color));
+}
+
 void RfidWidget::creatRfidCells()
 {
     QSettings settings(FILE_CONFIG_CABINET_LAYOUT, QSettings::IniFormat);
@@ -248,6 +290,12 @@ void RfidWidget::creatRfidCells()
     screenPos.setY(strScreenPos.at(1).toInt(&ok));
     if(!ok)
         return;
+
+    if(!listCabinet.isEmpty())
+    {
+        qDeleteAll(listCabinet.begin(), listCabinet.end());
+        listCabinet.clear();
+    }
 
     int i=0;
     for(i=0; i<listLayout.count(); i++)
@@ -527,12 +575,6 @@ void RfidWidget::on_serverAddr_editingFinished()
 
 void RfidWidget::on_save_settings_clicked()
 {
-    ui->msg_set->clear();
-    if(!cabManager->setServerAddress(ui->serverAddr->text()))
-    {
-        ui->msg_set->setText("服务器地址非法,应为:IP:Port");
-    }
-
     ui->widgetStack->setCurrentIndex(0);
 }
 
@@ -540,4 +582,25 @@ void RfidWidget::on_set_clicked()
 {
     ui->widgetStack->setCurrentIndex(1);
     initLockConfig();
+}
+
+void RfidWidget::on_cabReg_clicked()
+{
+    emit cabRegReq();
+}
+
+void RfidWidget::on_set_server_addr_clicked()
+{
+    ui->msg_server_addr->clear();
+    if(!cabManager->setServerAddress(ui->serverAddr->text()))
+    {
+        setMsgCorlor(ui->msg_server_addr, "rgb(250,50,50)");
+        ui->msg_server_addr->setText("服务器地址非法,应为:IP:Port");
+    }
+    else
+    {
+        setMsgCorlor(ui->msg_server_addr, "rgb(50,250,50)");
+        ui->msg_server_addr->setText("保存成功");
+        emit updateServerAddress();
+    }
 }

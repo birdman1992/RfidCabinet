@@ -44,6 +44,7 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
     cur_manager = new UserInfo();
     cabManager = CabinetManager::manager();
     repManager = RepertoryManager::manager();
+    ApiAddress = QString();
     checkList = NULL;
     reply_register = NULL;
     reply_login = NULL;
@@ -76,13 +77,13 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
 
 bool CabinetServer::initcabManager()
 {
-    ApiAddress = cabManager->getServerAddress();
+    getServerAddr(cabManager->getServerAddress());
 //    if(ApiAddress.isEmpty())
 //    {
 //        ApiAddress = SERVER_ADDR;
 //        cabManager->setServerAddress(ApiAddress);
 //    }
-    checkTime();
+//    checkTime();
 //    cabManager->getCabinetId();
 
 //    if(cabManager->getCabinetId().isEmpty())
@@ -113,9 +114,11 @@ void CabinetServer::cabRegister()
     {
         regId.insert(0,'0');
     }
+    regId.insert(0, "R");
     QByteArray qba = QString("{\"code\":\"%1\"}").arg(regId).toUtf8();
     QString nUrl = ApiAddress+QString(API_REG)+'?'+qba.toBase64();
     qDebug()<<"[cabRegister]"<<nUrl<<qba;
+
     replyCheck(reply_register);
     reply_register = manager->get(QNetworkRequest(QUrl(nUrl)));
     connect(reply_register, SIGNAL(finished()), this, SLOT(recvCabRegister()));
@@ -133,6 +136,7 @@ void CabinetServer::checkTime()
     connect(reply_datetime, SIGNAL(readyRead()), this, SLOT(recvDateTime()));
 //    connect(reply_datetime, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(recvDateTimeError(QNetworkReply::NetworkError)));
 
+    sysClock.stop();
     sysClock.start(60000);
     connect(&sysClock, SIGNAL(timeout()), this, SLOT(sysTimeout()));
     netTimeStart();
@@ -1670,6 +1674,7 @@ void CabinetServer::sysTimeout()
     {
         sysClock.stop();
         disconnect(&sysClock, SIGNAL(timeout()), this, SLOT(sysTimeout()));
+        qDebug("checksss");
         checkTime();
 
         if(cabManager->sleepFlagTimeout())
@@ -1679,8 +1684,8 @@ void CabinetServer::sysTimeout()
         }
         return;
     }
-    if(needReqCar&& cabManager->state == STATE_NO)
-        requireListState();
+//    if(needReqCar&& cabManager->state == STATE_NO)
+//        requireListState();
 
     if(cabManager->sleepFlagTimeout())
     {
@@ -1691,6 +1696,6 @@ void CabinetServer::sysTimeout()
 
 void CabinetServer::updateAddress()
 {
-    ApiAddress = cabManager->getServerAddress();
+    getServerAddr(cabManager->getServerAddress());
 }
 

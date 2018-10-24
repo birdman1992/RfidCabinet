@@ -34,10 +34,12 @@ public:
     bool setServerAddress(QString addr);
     void setCabCtrlWorld(QPoint caseAddr, QPoint ctrlWord);
     void setCabinetId(QString id);
+    void setAntPow(int pow);
 
     QPoint getCabCtrlWorld(QPoint caseAddr);
     QString getServerAddress();
     QString getCabinetId();
+    int getAntPow();
     int getLockId(int col, int row);
 
     int cabinetColCount();

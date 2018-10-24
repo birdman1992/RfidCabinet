@@ -134,7 +134,7 @@ background-color: rgba(255, 255, 255, 0);
 </string>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="page_menu">
             <property name="styleSheet">
@@ -589,7 +589,7 @@ QTableWidget{background-color: rgba(255, 255, 255, 0);}
 #pageSet{background-color: rgba(255, 255, 255, 0);}</string>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="pageCab">
             <property name="styleSheet">
@@ -702,7 +702,7 @@ font: 18px &quot;微软雅黑&quot;;</string>
                 <property name="geometry">
                  <rect>
                   <x>30</x>
-                  <y>130</y>
+                  <y>310</y>
                   <width>521</width>
                   <height>131</height>
                  </rect>
@@ -923,9 +923,9 @@ font: 18px &quot;微软雅黑&quot;;</string>
                 <property name="geometry">
                  <rect>
                   <x>30</x>
-                  <y>40</y>
-                  <width>521</width>
-                  <height>61</height>
+                  <y>50</y>
+                  <width>481</width>
+                  <height>101</height>
                  </rect>
                 </property>
                 <property name="frameShape">
@@ -934,15 +934,8 @@ font: 18px &quot;微软雅黑&quot;;</string>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
-                 <item>
-                  <widget class="QLabel" name="label">
-                   <property name="text">
-                    <string>服务器地址</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <item row="1" column="1">
                   <widget class="QLineEdit" name="serverAddr">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -951,6 +944,145 @@ font: 18px &quot;微软雅黑&quot;;</string>
                     </sizepolicy>
                    </property>
                   </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QPushButton" name="set_server_addr">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>确定</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_6">
+                   <item>
+                    <widget class="QLabel" name="label">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>服务器地址</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="msg_server_addr">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QFrame" name="frame_8">
+                <property name="geometry">
+                 <rect>
+                  <x>30</x>
+                  <y>200</y>
+                  <width>521</width>
+                  <height>111</height>
+                 </rect>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <property name="verticalSpacing">
+                  <number>0</number>
+                 </property>
+                 <item row="1" column="1">
+                  <widget class="QPushButton" name="cabReg">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>注册</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLineEdit" name="idLine">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">font: 30px &quot;微软雅黑&quot;;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QPushButton" name="cabClone">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>克隆</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <layout class="QHBoxLayout" name="horizontalLayout_7">
+                   <item>
+                    <widget class="QLabel" name="label_2">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>柜子ID</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="msg_reg">
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </widget>

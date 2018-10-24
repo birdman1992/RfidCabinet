@@ -9,7 +9,9 @@ RfidReader::RfidReader(int address, QString dev, QObject* parent):QObject(parent
     waitFlag = false;
     readerId = address;
     curAnt = -1;
+    fluctNum = -1;
     manager_epc = EpcManager::manager();
+    manager_cab = CabinetManager::manager();
     com = new QextSerialPort(dev);
     com->setBaudRate(BAUD115200);
     com->setDataBits(DATA_8);
@@ -22,6 +24,10 @@ RfidReader::RfidReader(int address, QString dev, QObject* parent):QObject(parent
     }
 
     connect(com, SIGNAL(readyRead()), this, SLOT(readData()));
+
+    getOutputPower(readerId);
+    setOutputPower(readerId, (char)manager_cab->getAntPow());
+    setAndSaveImpinjFastTid(readerId, true);
 }
 
 void RfidReader::rfidScan()
@@ -92,11 +98,47 @@ void RfidReader::scanFinish()
 {
     qDebug()<<"[scanFinish]";
     QStringList l = manager_epc->checkDel();
+    qDebug()<<"[EPC]"<<"total:"<<manager_epc->epcNum()<<"add:"<<listAdd.count()<<"remove:"<<l.count();
+    if(listAdd.count() | l.count())
+        fluctNum++;
+    qDebug()<<"[fluctNum]"<<fluctNum;
+    qDebug()<<"+"<<printList(listAdd);
+    qDebug()<<"-"<<l;
+
     foreach(QString str, l)
     {
         listDel<<new rfidChangeInfo(readerId, QByteArray::fromHex(str.toLocal8Bit()));
     }
     emit scanFinished();
+    rfidScan();
+}
+
+void RfidReader::getOutputPower(char address)
+{
+    qDebug()<<"getoutputpower>>>>>>>>";
+    QByteArray qba = rfidCmd(address, 0x77, QByteArray());
+//    waitFlag = false;
+    waitForWrite(qba);
+}
+
+void RfidReader::setOutputPower(char address, char pow)
+{
+    qDebug()<<"[setOutputPower]"<<(int)pow;
+    QByteArray qba = rfidCmd(address, 0x76, pow);
+//    waitFlag = false;
+    waitForWrite(qba);
+}
+
+void RfidReader::setAndSaveImpinjFastTid(char address, bool useTid)
+{
+    char ctrlWd = 0;
+    if(useTid)
+    {
+        ctrlWd = 0x8D;
+    }
+    QByteArray qba = rfidCmd(address, 0x8D, ctrlWd);
+//    waitFlag = false;
+    waitForWrite(qba);
 }
 
 void RfidReader::parPackage(QByteArray qba)
@@ -105,6 +147,12 @@ void RfidReader::parPackage(QByteArray qba)
     switch(cmd){
     case 0x89://实时标签扫描
         parEpc(qba);break;
+    case 0x76://
+        parSetOutputPower(qba);break;
+    case 0x77://
+        parGetOutputPower(qba);break;
+    case 0x8D:
+        if(qba[4] == (char)0x10) qDebug()<<"[set use tid]:success";break;
     default:
         break;
     }
@@ -119,7 +167,11 @@ QString RfidReader::parEpc(QByteArray qba)
         nextFlag = true;
         if(qba.at(4) == 0x22)//天线未连接
         {
-            qWarning()<<"[RfidReader]"<<"ant"<<curAnt+1<<"not connected.";
+//            qWarning()<<"[RfidReader]"<<"ant"<<curAnt+1<<"not connected.";
+            if((curAnt+1) == 3)
+            {
+                scanFinish();
+            }
         }
         return QString();
     }
@@ -127,7 +179,7 @@ QString RfidReader::parEpc(QByteArray qba)
     {
         nextFlag = true;
         antId = qba[4];
-        qDebug()<<antId;
+//        qDebug()<<antId;
         if(antId == 3)
         {
             scanFinish();
@@ -145,14 +197,36 @@ QString RfidReader::parEpc(QByteArray qba)
     if(epcFilter(epc))
         return QString();
 
-    qDebug()<<"[ant:"<<antId<<"]"<<epc<<QByteArray(1, rssi).toHex();
-    qDebug()<<qba.toHex();
+//    qDebug()<<"[ant:"<<antId<<"]"<<epc<<QByteArray(1, rssi).toHex();
+//    qDebug()<<qba.toHex();
     if(manager_epc->insert(epc))
     {
         listAdd<<new rfidChangeInfo(readerId, QByteArray::fromHex(epc.toLocal8Bit()));
     }
 
     return epc;
+}
+
+void RfidReader::parGetOutputPower(QByteArray qba)
+{
+    QString showStr;
+    if(qba.size() == 6)
+    {
+        showStr = QString("[output power]\nant0:%1/33 dBm\nant1:%2/33 dBm\nant2:%3/33 dBm\nant3:%4/33 dBm\n").arg((int)qba[4]).arg((int)qba[4]).arg((int)qba[4]).arg((int)qba[4]);
+    }
+    else if(qba.size() == 9)
+    {
+        showStr = QString("[output power]\nant0:%1/33 dBm\nant1:%2/33 dBm\nant2:%3/33 dBm\nant3:%4/33 dBm\n").arg((int)qba[4]).arg((int)qba[5]).arg((int)qba[6]).arg((int)qba[7]);
+    }
+    qDebug()<<qPrintable(showStr);
+}
+
+void RfidReader::parSetOutputPower(QByteArray qba)
+{
+    if(qba[4] = 0x10)
+    {
+        qDebug()<<"[set output power]:success";
+    }
 }
 
 void RfidReader::setScanAnt(char address, char antId)
@@ -238,6 +312,16 @@ qint64 RfidReader::writeNext()
     waitFlag = true;
 
     return write(sendList.takeFirst());
+}
+
+QStringList RfidReader::printList(QList<rfidChangeInfo *> l)
+{
+    QStringList ret;
+    foreach(rfidChangeInfo* info, l)
+    {
+        ret<<QString(info->rfid.toHex());
+    }
+    return ret;
 }
 
 bool RfidReader::epcFilter(QString epc)

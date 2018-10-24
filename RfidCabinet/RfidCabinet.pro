@@ -53,7 +53,6 @@ SOURCES += \
     manager/epcmanager.cpp \
     device/Hid/qhid.cpp \
     device/Hid/hid.c \
-    device/controldevice.cpp \
     cabinetserver.cpp \
     Structs/goodscheckinfo.cpp \
     Structs/dayreportinfo.cpp \
@@ -93,7 +92,6 @@ HEADERS += \
     manager/epcmanager.h \
     device/Hid/qhid.h \
     device/Hid/hid.h \
-    device/controldevice.h \
     cabinetserver.h \
     Structs/goodscheckinfo.h \
     Structs/dayreportinfo.h \

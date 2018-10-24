@@ -42,6 +42,11 @@ void EpcManager::clearCache()
     cacheList.clear();
 }
 
+int EpcManager::epcNum()
+{
+    return hash_epc.count();
+}
+
 //void EpcManager::checkNewAndDel()
 //{
 //    qDebug()<<"checkNewAndDel";
