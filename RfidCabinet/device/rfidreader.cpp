@@ -34,13 +34,14 @@ void RfidReader::rfidScan()
 {
     QByteArray set_work_ant = QByteArray::fromHex("A00401740000");
     QByteArray real_time_inventory = QByteArray::fromHex("A004018901D1");
+    scanTime.start();
     curAnt = -1;
 //    setScanAnt(1, 1);
 //    getRealTimeInventory(1, 5);
     for(int i=0; i<4; i++)
     {
         setScanAnt(readerId, i);
-        getRealTimeInventory(readerId, 1);
+        getRealTimeInventory(readerId, 2);
     }
     //    getInventoryBuffer(1);
 }
@@ -97,6 +98,7 @@ void RfidReader::readDataCache()
 void RfidReader::scanFinish()
 {
     qDebug()<<"[scanFinish]";
+    qDebug()<<"[use time]"<<scanTime.elapsed()/1000.0<<"s";
     QStringList l = manager_epc->checkDel();
     qDebug()<<"[EPC]"<<"total:"<<manager_epc->epcNum()<<"add:"<<listAdd.count()<<"remove:"<<l.count();
     if(listAdd.count() | l.count())

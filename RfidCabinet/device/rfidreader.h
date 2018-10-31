@@ -10,6 +10,7 @@
 #include "manager/epcmanager.h"
 #include "manager/cabinetmanager.h"
 #include "Structs/rfidchangeinfo.h"
+#include <QTime>
 
 class RfidReader : public QObject
 {
@@ -29,6 +30,7 @@ private:
     CabinetManager* manager_cab;
     QextSerialPort* com;
     QByteArray dataCache;
+    QTime scanTime;
     bool waitFlag;
     bool nextFlag;
     int curAnt;
