@@ -14,6 +14,7 @@
 #include "Structs/cabinetinfo.h"
 #include "RfidCell/cabinet.h"
 #include "manager/cabinetmanager.h"
+#include "manager/epcmanager.h"
 #include <QList>
 #include <QRect>
 #include <qmap.h>
@@ -41,6 +42,7 @@ public slots:
     void rfidOut(QList<rfidChangeInfo*>);
     void rfidTest(QString);
     void cabRegRst(bool);
+    void usrLogRst(UserInfo*);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -67,6 +69,7 @@ signals:
     void rfidFetchReq(QList<rfidChangeInfo*>);
     void insertRfidReq(QStringList);
     void cabRegReq();
+    void lockActive(bool);
     void test();
     void updateServerAddress();
 
@@ -89,6 +92,7 @@ private:
     QMap<int, RfidAnt*> antsMap;
     RepertoryManager* repManager;
     CabinetManager* cabManager;
+    EpcManager* epcManager;
 
     void initMenu();
     void initAnt();//初始化天线

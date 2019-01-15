@@ -24,6 +24,20 @@ TEMPLATE = app
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+if(contains(DEFINES,PC)){
+LIBS += -L$$PWD/libs/PC/libusb -lusb-1.0
+#LIBS += -L/home/hp/mygit/SmartCabinet/SmartCabinet/libs/PC/libusb -lusb-1.0
+LIBS += -L$$PWD/libs/PC/Crypto -lcrypto
+}
+if(contains(DEFINES,MC)){
+LIBS += -L$$PWD/libs/MC/libusb -lusb-1.0
+LIBS += -L$$PWD/libs/MC/Crypto -lcrypto
+}
+if(contains(DEFINES,MY)){
+LIBS += -L$$PWD/libs/MY/libusb -lusb-1.0
+LIBS += -L$$PWD/libs/MY/Crypto -lcrypto
+}
+
 SOURCES += \
         main.cpp \
         widget.cpp \
@@ -60,7 +74,9 @@ SOURCES += \
     lockconfig.cpp \
     funcs/chineseletterhelper.cpp \
     Widgets/cabinetcheckitem.cpp \
-    Widgets/cabinetstorelistitem.cpp
+    Widgets/cabinetstorelistitem.cpp \
+    device/Hid/hid-libusb.c \
+    Structs/epcinfo.cpp
 
 HEADERS += \
         widget.h \
@@ -99,7 +115,8 @@ HEADERS += \
     lockconfig.h \
     funcs/chineseletterhelper.h \
     Widgets/cabinetcheckitem.h \
-    Widgets/cabinetstorelistitem.h
+    Widgets/cabinetstorelistitem.h \
+    Structs/epcinfo.h
 
 FORMS += \
         widget.ui \

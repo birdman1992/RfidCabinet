@@ -6,6 +6,7 @@
 #include <QtGlobal>
 #include <fcntl.h>
 #include <unistd.h>
+#include "config.h"
 //#include "defines.h"
 //#include "Device/controldevice.h"
 //#define RECV_DEBUG
@@ -22,14 +23,14 @@
 #define API_LIST_CHECK "/spd-web/sarkApi/OutStorage/query/goods/" //送货单检查接口
 #define API_LIST_STORE "/spd-web/sarkApi/OutStorage/query/"      //存入完毕销单接口
 #define API_CAB_BIND "/spd-web/sarkApi/Cheset/register/"     //柜格物品绑定接口
-#define API_GOODS_ACCESS  "/spd-web/sarkApi/Cheset/doGoods/"
+#define API_GOODS_ACCESS  "/spd-web/sarkApi/Cheset/rfid/doGoods/"
 //#define API_GOODS_CHECK  "/spd-web/sarkApi/Cheset/doUpdataGoods/"     //盘点接口
 #define API_GOODS_CHECK    "/spd-web/sarkApi/Cheset/checkCheset/"      //盘点接口
 #define API_CHECK_CREAT     "/spd-web/sarkApi/TakeStockCheset/create/"       //创建盘点
 #define API_CHECK_END       "/spd-web/sarkApi/TakeStockCheset/end/"          //结束盘点
 #define API_CHECK_TIME "/spd-web/sarkApi/Time/query/"
 #define API_REQ_LIST "/spd-web/sarkApi/OutStorage/find/OutStorageCar/"      //查询是否有送货单在途中
-#define API_LIST_CHECK_NEW "/spd-web/sarkApi/OutStorage/queryfind/goods/"     //查询待存送货单接口NEW
+#define API_LIST_CHECK_NEW "/spd-web/sarkApi/OutStorage/queryfind/rfid/goods/"     //查询待存送货单接口NEW
 #define API_NETSTATE_CHECK "/spd-web/websocket/"    //网络状态检查
 #define API_CHECK_TABLES "/spd-web/sarkApi/TakeStockCheset/query/takestockList/"    //查询盘点清单表
 #define API_CHECK_INFO "/spd-web/sarkApi/TakeStockCheset/query/takestockGoodsList/"    //查询盘点清单内容
@@ -44,7 +45,12 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
     cur_manager = new UserInfo();
     cabManager = CabinetManager::manager();
     repManager = RepertoryManager::manager();
+    epcManager = EpcManager::manager();
     ApiAddress = QString();
+    cabId = QString();
+    regId = QString();
+    rfidStep = 0;
+    cur_user = NULL;
     checkList = NULL;
     reply_register = NULL;
     reply_login = NULL;
@@ -73,6 +79,7 @@ CabinetServer::CabinetServer(QObject *parent) : QObject(parent)
 #ifndef SIMULATE_ON
     watchdogStart();
 #endif
+    checkCabReg();
 }
 
 bool CabinetServer::initcabManager()
@@ -97,6 +104,54 @@ bool CabinetServer::initcabManager()
     return true;
 }
 
+void CabinetServer::checkCabReg()
+{
+    cabId = cabManager->getCabinetId();
+    if(cabId.isEmpty())
+    {
+        QTimer::singleShot(10000, this, SLOT(checkCabReg()));
+        cabRegister();
+        emit reqLockWarning(1);
+    }
+}
+
+void CabinetServer::rfidScanFinish()
+{
+    if(cur_user == NULL)
+        return;
+
+    list_access_cache.clear();
+
+    list_access_cache<<epcManager->storeClearing();
+    list_access_cache<<epcManager->fetchClearing(cur_user->cardId);
+    list_access_cache<<epcManager->backClearing(cur_user->cardId);
+
+    rfidAccess();
+}
+
+void CabinetServer::rfidAccess()
+{
+    if(list_access_cache.isEmpty())
+        return;
+
+    QByteArray qba = list_access_cache.takeFirst();
+    if(qba.isEmpty())
+    {
+        rfidAccess();
+        return;
+    }
+
+    QString nUrl = ApiAddress+QString(API_GOODS_ACCESS);
+    qDebug()<<"[listAccess]"<<nUrl;
+    qDebug()<<qba;
+    replyCheck(reply_goods_access);
+    QNetworkRequest request;
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setUrl(nUrl);
+    reply_goods_access = manager->post(request, qba.toBase64());
+    connect(reply_goods_access, SIGNAL(finished()), this, SLOT(recvListAccess()));
+}
+
 void CabinetServer::waitForListTimeout()
 {
 
@@ -108,13 +163,16 @@ void CabinetServer::cabRegister()
     qDebug()<<"[Cabinet register]:success"<<regId;
     cabManager->setCabinetId(regId);
 #endif
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-    regId = QString::number(qrand()%1000000);
-    while(regId.length() < 6)
+    if(regId.isEmpty())
     {
-        regId.insert(0,'0');
+        qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+        regId = QString::number(qrand()%1000000);
+        while(regId.length() < 6)
+        {
+            regId.insert(0,'0');
+        }
+        regId.insert(0, "R");
     }
-    regId.insert(0, "R");
     QByteArray qba = QString("{\"code\":\"%1\"}").arg(regId).toUtf8();
     QString nUrl = ApiAddress+QString(API_REG)+'?'+qba.toBase64();
     qDebug()<<"[cabRegister]"<<nUrl<<qba;
@@ -174,6 +232,16 @@ void CabinetServer::replyCheck(QNetworkReply *reply)
 {
     if(reply != NULL)
         reply->deleteLater();
+}
+
+void CabinetServer::checkGoodsList()
+{
+    if(list_goodsList.isEmpty())
+    {
+        return;
+    }
+
+    listCheck(list_goodsList.takeFirst());
 }
 
 void CabinetServer::netTimeStart()
@@ -383,7 +451,7 @@ void CabinetServer::goodsAccess(CaseAddress addr, QString id, int num, int optTy
 
 }
 
-void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 refund:3
+void CabinetServer::listAccess(QStringList list, int optType)//fetch:1  store:2 refund:3  rfidback:16
 {
     cJSON* json = cJSON_CreateObject();
     cJSON* jlist = cJSON_CreateArray();
@@ -398,6 +466,7 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
         QByteArray packageBarcode = pack_bar.toLocal8Bit();
         QByteArray chesetCode = cabManager->getCabinetId().toLocal8Bit();
         QByteArray barcode = barCode.toLocal8Bit();
+        QByteArray goodsCode = "0";
 //        CaseAddress addr = cabManager->checkCabinetByBarCode(pack_id);
 //        QByteArray goodsCode = QString::number(cabManager->getLockId(addr.cabinetSeqNum, addr.caseIndex)).toLocal8Bit();
 
@@ -405,11 +474,11 @@ void CabinetServer::listAccess(QStringList list, int optType)//store:1  fetch:2 
         cJSON_AddItemToObject(obj, "packageBarcode",cJSON_CreateString(packageBarcode.data()));
         cJSON_AddItemToObject(obj, "chesetCode", cJSON_CreateString(chesetCode.data()));
         cJSON_AddItemToObject(obj, "optType", cJSON_CreateNumber(optType));
+        cJSON_AddItemToObject(obj, "goodsCode", cJSON_CreateString(goodsCode.data()));
         if(optType == 2)
         {
             cJSON_AddItemToObject(obj, "barcode", cJSON_CreateString(barcode.data()));
         }
-//        cJSON_AddItemToObject(obj, "goodsCode", cJSON_CreateString(goodsCode.data()));
         cJSON_AddItemToObject(obj, "optCount", cJSON_CreateNumber(1));
         if(cur_user != NULL)
         {
@@ -727,10 +796,12 @@ void CabinetServer::recvCabRegister()
         qDebug()<<"reg"<<cabManager->getCabinetId();
         emit idUpdate();
         emit regResult(true);
+        emit reqLockWarning(4);
     }
     else
     {
         emit regResult(false);
+        regId = QString();
 //        cabRegister();
     }
     cJSON_Delete(json);
@@ -775,6 +846,7 @@ void CabinetServer::recvUserLogin()
         cabManager->addUser(info);
 //        cabManager->wakeUp(TIMEOUT_BASE);
         networkState = true;
+        requireListState();//触发查询待存送货单
     }
     else
     {
@@ -862,6 +934,8 @@ void CabinetServer::recvListCheck()
     {
         Goods* info;
         GoodsList* list = new GoodsList;
+        list->chesetCode = cabManager->getCabinetId();
+        list->optName = logId;
         cJSON* json_data = cJSON_GetObjectItem(json,"data");
         if(json_data->type == cJSON_NULL)
         {
@@ -876,7 +950,7 @@ void CabinetServer::recvListCheck()
             cJSON_Delete(json);
             return;
         }
-
+//读取定数包列表
         for(int i=0; i<listCount; i++)
         {
             info = new Goods;
@@ -904,20 +978,41 @@ void CabinetServer::recvListCheck()
             qDebug()<<"[goods]"<<info->name<<info->goodsId<<info->takeCount<<info->unit;
             list->addGoods(info);
         }
+
+        cJSON* json_rfids = cJSON_GetObjectItem(json_data,"rfidCode");
+        listCount = cJSON_GetArraySize(json_rfids);
+        if(listCount <= 0)
+        {
+            cJSON_Delete(json);
+            return;
+        }
+//读取rfid列表
+        for(int i=0; i<listCount; i++)
+        {
+            cJSON* json_rfid = cJSON_GetArrayItem(json_rfids,i);
+            QString packageBarcode = QString::fromUtf8(cJSON_GetObjectItem(json_rfid,"packageBarcode")->valuestring);
+            QString rfid = QString::fromUtf8(cJSON_GetObjectItem(json_rfid,"rfidCode")->valuestring);
+            list->addRfid(packageBarcode, rfid);
+        }
+
         cJSON* json_list_info = cJSON_GetObjectItem(json_data,"store");
         list->barcode = QString::fromUtf8(cJSON_GetObjectItem(json_list_info, "barcode")->valuestring);
         if(cabManager->getCabinetId() == QString::fromUtf8(cJSON_GetObjectItem(json_list_info, "departName")->valuestring))
         {
-            emit listRst(list);
+//            emit listRst(list);
+            //把rfid加入关注列表
+            epcManager->addStoreList(list);
+//            emit doorStareChanged(true);
         }
         else
         {
             delete list;
-            list = new GoodsList;
-            emit listRst(list);
+//            list = new GoodsList;
+//            emit listRst(list);
         }
     }
     cJSON_Delete(json);
+    checkGoodsList();
 }
 
 void CabinetServer::recvCabBind()
@@ -984,39 +1079,58 @@ void CabinetServer::recvListAccess()
     qDebug()<<cJSON_Print(json);
 
     if(!json)
+    {
+        rfidAccess();
         return;
+    }
 
     cJSON* json_rst = cJSON_GetObjectItem(json, "success");
     if(json_rst->type == cJSON_True)
     {
         goodsCarScan();
-        qDebug()<<"ACCESS success";
-        cJSON* data = cJSON_GetObjectItem(json, "data");
-        int listCount = cJSON_GetArraySize(data);
-        if(listCount <= 0)
-        {
-            cJSON_Delete(json);
-            return;
-        }
-        int i=0;
-        for(i=0; i<listCount; i++)
-        {
-            cJSON* item = cJSON_GetArrayItem(data, i);
-            QString goodsId = QString::fromUtf8(cJSON_GetObjectItem(item,"goodsId")->valuestring);
-            int goodsType = cJSON_GetObjectItem(item, "goodsType")->valueint;
-            int goodsNum = cJSON_GetObjectItem(item, "packageCount")->valueint;
-            float goodsPrice = cJSON_GetObjectItem(item, "price")->valuedouble;
 
-            if(goodsType<10)
-                goodsId += "-0"+QString::number(goodsType);
-            else
-                goodsId += "-"+QString::number(goodsType);
-
-            qDebug()<<goodsId<<goodsNum;
-            emit goodsNumChanged(goodsId, goodsNum);
-            emit accessSuccess(QString(cJSON_GetObjectItem(item,"msg")->valuestring));
-            emit updateGoodsPrice(goodsPrice, goodsPrice*goodsType);
+        if(list_access_cache.count() == 2)
+        {
+            qDebug()<<"STORE success";
         }
+        else if(list_access_cache.count() == 1)
+        {
+            qDebug()<<"FETCH success";
+            epcManager->fetchRst();
+        }
+        else if(list_access_cache.count() == 0)
+        {
+            qDebug()<<"back success";
+            epcManager->backRst();
+        }
+
+//        cJSON* data = cJSON_GetObjectItem(json, "data");
+//        int listCount = cJSON_GetArraySize(data);
+//        if(listCount <= 0)
+//        {
+//            cJSON_Delete(json);
+//            return;
+//        }
+//        int i=0;
+//        for(i=0; i<listCount; i++)
+//        {
+//            cJSON* item = cJSON_GetArrayItem(data, i);
+//            QString goodsId = QString::fromUtf8(cJSON_GetObjectItem(item,"goodsId")->valuestring);
+//            int goodsType = cJSON_GetObjectItem(item, "goodsType")->valueint;
+//            int goodsNum = cJSON_GetObjectItem(item, "packageCount")->valueint;
+//            float goodsPrice = cJSON_GetObjectItem(item, "price")->valuedouble;
+
+//            if(goodsType<10)
+//                goodsId += "-0"+QString::number(goodsType);
+//            else
+//                goodsId += "-"+QString::number(goodsType);
+
+//            qDebug()<<goodsId<<goodsNum;
+
+//            emit goodsNumChanged(goodsId, goodsNum);
+//            emit accessSuccess(QString(cJSON_GetObjectItem(item,"msg")->valuestring));
+//            emit updateGoodsPrice(goodsPrice, goodsPrice*goodsType);
+//        }
     }
     else
     {
@@ -1024,7 +1138,8 @@ void CabinetServer::recvListAccess()
     }
     cJSON_Delete(json);
 
-    accessLoop();
+    rfidAccess();
+//    accessLoop();
 }
 
 void CabinetServer::recvGoodsCheck()
@@ -1217,16 +1332,18 @@ void CabinetServer::recvListState()
         for(i=0; i<listSize; i++)
         {
             cJSON* item = cJSON_GetArrayItem(json_data, i);
-            GoodsCar car;
-            car.listId = QString(cJSON_GetObjectItem(item, "barcode")->valuestring);
-            car.rfid = QString(cJSON_GetObjectItem(item, "code")->valuestring);
-            qDebug()<<"[newGoodsCar]"<<car.rfid<<car.listId;
-            emit newGoodsCar(car);
+//            GoodsCar car;
+            QString listId = QString(cJSON_GetObjectItem(item, "barcode")->valuestring);
+//            car.rfid = QString(cJSON_GetObjectItem(item, "code")->valuestring);
+            qDebug()<<"[newGoodsCar]"<<listId;
+            list_goodsList<<listId;
+//            emit newGoodsCar(car);
 //            needReqCar = false;
         }
     }
 
     cJSON_Delete(json);
+    checkGoodsList();
 }
 
 void CabinetServer::recvInfoUploadResult()
@@ -1674,7 +1791,7 @@ void CabinetServer::sysTimeout()
     {
         sysClock.stop();
         disconnect(&sysClock, SIGNAL(timeout()), this, SLOT(sysTimeout()));
-        qDebug("checksss");
+//        qDebug("checksss");
         checkTime();
 
         if(cabManager->sleepFlagTimeout())

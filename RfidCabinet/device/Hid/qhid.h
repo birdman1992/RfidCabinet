@@ -4,19 +4,23 @@
 #include <QObject>
 #include <QThread>
 #include <QString>
+extern "C"
+{
+    #include "hidapi.h"
+}
 
 class QHid : public QThread
 {
     Q_OBJECT
 public:
     explicit QHid(QObject *parent = 0);
-    void hidOpen(QString dev);
+    ~QHid();
+    bool hidOpen(unsigned short vId, unsigned short pId);
+    void hidClose();
     void run();
 
 private:
-    int fd;
-    int version;
-    char name[100];
+    hid_device* handle;
 
 signals:
     void hidRead(QByteArray qba);

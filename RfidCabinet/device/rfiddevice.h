@@ -21,6 +21,7 @@ public:
 
     void startScan();
     void stopScan();
+    void scanOnce(int times);//扫描times次
     void insertRfid(QStringList);
 private:
     void run();
@@ -33,6 +34,7 @@ private:
 signals:
     void rfidIn(QList<rfidChangeInfo*>);
     void rfidOut(QList<rfidChangeInfo*>);
+    void rfidFinish();
 
 public slots:
 //    int rfidScan();

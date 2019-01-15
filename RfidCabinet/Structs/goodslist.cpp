@@ -24,9 +24,43 @@ void GoodsList::addGoods(Goods *_goods)
     {
         list_goods<<_goods;
         map_goods.insert(_goods->packageBarcode, _goods);
-        qDebug()<<"[addtoMap]"<<_goods->packageBarcode<<_goods->abbName;
+
+        qDebug()<<"[addtoMap]"<<_goods->packageBarcode<<_goods->abbName<<_goods->rfidCodes;
         //       map_goods.insert(_goods->goodsId, _goods);
     }
+
+
+}
+
+void GoodsList::addRfid(QString goodsId, QString rfid)
+{
+    Goods* goods = getGoodsById(goodsId);
+    if(goods == NULL)
+    {
+        qDebug()<<"unknow rfid:"<<rfid;
+        return;
+    }
+    if(goods->addRfid(rfid))
+    {
+        map_goods.insert(rfid, goods);
+        goods->curNum++;
+    }
+}
+
+bool GoodsList::storeRfid(QString rfid)
+{
+    Goods* goods = getGoodsById(rfid);
+    if(goods == NULL)
+    {
+        qDebug()<<"unknow rfid:"<<rfid;
+        return false;
+    }
+    if(goods->storeRfid(rfid))
+    {
+        goods->curNum++;
+        return true;
+    }
+    return false;
 }
 
 void GoodsList::goodsIn(QString goodsId, int)
@@ -69,7 +103,7 @@ bool GoodsList::goodsIsRepeat(Goods *_goods, int *index)
 }
 
 Goods *GoodsList::getGoodsById(QString goodsId)
-{qDebug()<<"check"<<goodsId;
+{//qDebug()<<"check"<<goodsId;
     if(map_goods.isEmpty())
         return NULL;
     return map_goods.value(goodsId, NULL);
@@ -91,8 +125,6 @@ bool GoodsList::listCheck()
     }
     return true;
 }
-
-
 
 Goods::Goods()
 {
@@ -132,4 +164,26 @@ Goods::Goods(Goods *goods)
     curNum = goods->curNum;//未写入柜子信息的已存入数量
     storeNum = goods->storeNum;//写入柜子信息的已存入数量
     finish = goods->finish;
+}
+
+bool Goods::addRfid(QString rfid)
+{
+    if(rfidCodes.indexOf(rfid) != -1)
+    {
+        return false;
+    }
+    qDebug()<<"[addRfid]"<<rfidCodes;
+    rfidCodes<<rfid;
+    return true;
+}
+
+bool Goods::storeRfid(QString rfid)
+{
+    if(storeRfidCodes.indexOf(rfid) != -1)
+    {
+        return false;
+    }
+    qDebug()<<"[storeRfid]"<<rfidCodes;
+    storeRfidCodes<<rfid;
+    return true;
 }

@@ -25,6 +25,8 @@ RfidWidget::RfidWidget(QWidget *parent) :
     needSelScreen = true;
 
     cabManager = CabinetManager::manager();
+    epcManager = EpcManager::manager();
+    epcManager->initEpcHash();
 
     initMenu();
     initCabType(QString(CAB_TYPE).split("#"));
@@ -55,7 +57,7 @@ void RfidWidget::goodsIn(QList<GoodsInfo *> listStore)
         }
         RfidArea* cell = listCabinet[info->pos.x()]->areaAt(info->pos.y());
 
-        repManager->rfidIn(info);
+//        repManager->rfidIn(info);
         cell->updateInfo();
     }
 }
@@ -71,7 +73,7 @@ void RfidWidget::goodsOut(QList<GoodsInfo *>listFetch)
         }
         RfidArea* cell = listCabinet[info->pos.x()]->areaAt(info->pos.y());
 
-        repManager->rfidOut(info);
+//        repManager->rfidOut(info);
         cell->updateInfo();
     }
 }
@@ -142,6 +144,11 @@ void RfidWidget::cabRegRst(bool success)
     {
 
     }
+}
+
+void RfidWidget::usrLogRst(UserInfo*)
+{
+    emit lockActive(true);
 }
 
 void RfidWidget::paintEvent(QPaintEvent*)

@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QTimer>
 #include "devicesimulator.h"
 #include "Qextserial/qextserialport.h"
 #include "device/rfiddevice.h"
@@ -29,6 +30,11 @@ private:
     DeviceSimulator* win_controler;
     QHid* hid_card_reader;//读卡器设备
     QHid* hid_code_scan;//扫码设备
+    QTimer* reqTimer;
+    bool scanState;
+    bool cardReaderState;
+    bool lockState;//柜门状态  true:开  false:关
+    bool lockStateReq;//
     QextSerialPort* com_lock_ctrl;//柜门锁控制器
     RfidDevice* devRfid;
     void deviceInit();
@@ -36,21 +42,30 @@ private:
 
     int get_path();
     int get_dev_info(char *dev_name, USBINFO *uInfo);
+    void lockCtrl(int seqNum, int ioNum);
+
+
 signals:
     void rfidIn(QList<rfidChangeInfo*>);
     void rfidOut(QList<rfidChangeInfo*>);
     void lockCtrlData(QByteArray);//暂无
     void cardReaderData(QString);//当前可用
-    void codeScanData(QByteArray);//当前可用
+    void codeScanData(QString);//当前可用
+    void doorStateChanged(bool);
+    void rfidFinish();
 
 public slots:
+    void openCabDoor();//打开柜门
     void recvDoorState(bool isopen);
     void insertRfid(QStringList);
+    void setLockActive(bool act);
+    void lockWarning(int times);
     void test();
 private slots:
     void readLockCtrlData();
     void readCardReaderData(QByteArray);
     void readCodeScanData(QByteArray);
+    void getLockState();
 
 };
 

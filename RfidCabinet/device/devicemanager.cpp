@@ -17,6 +17,8 @@ char dev_path[2][24] = {0};
 
 DeviceManager::DeviceManager(QObject *parent) : QObject(parent)
 {
+    lockState = false;
+    lockStateReq = false;
 #ifndef RUN_IN_ARM
     win_controler = new DeviceSimulator();
     win_controler->show();
@@ -24,6 +26,11 @@ DeviceManager::DeviceManager(QObject *parent) : QObject(parent)
     connect(win_controler, SIGNAL(rfidOut(QList<rfidChangeInfo*>)), this, SIGNAL(rfidOut(QList<rfidChangeInfo*>)));
 #endif
     deviceInit();
+    reqTimer = new QTimer(this);
+    connect(reqTimer, SIGNAL(timeout()), this, SLOT(getLockState()));
+    reqTimer->start(300);
+    connect(this,SIGNAL(doorStateChanged(bool)), SLOT(recvDoorState(bool)));
+//    setLockActive(true);
 }
 
 DeviceManager::~DeviceManager()
@@ -34,6 +41,29 @@ DeviceManager::~DeviceManager()
     delete devRfid;
 }
 
+void DeviceManager::setLockActive(bool act)
+{
+    if(act)
+    {
+//        lockStateReq = true;
+//        getLockState();
+//        usleep(200000);
+        openCabDoor();
+    }
+}
+
+void DeviceManager::lockWarning(int times)
+{
+    if(times>5)
+        times = 1;
+
+    while(times--)
+    {
+        lockCtrl(0,0);
+        usleep(300000);
+    }
+}
+
 void DeviceManager::deviceInit()
 {
     qDebug("deviceInit");
@@ -41,6 +71,7 @@ void DeviceManager::deviceInit()
     devRfid = new RfidDevice(this);
     connect(devRfid, SIGNAL(rfidIn(QList<rfidChangeInfo*>)), this, SIGNAL(rfidIn(QList<rfidChangeInfo*>)));
     connect(devRfid, SIGNAL(rfidOut(QList<rfidChangeInfo*>)), this, SIGNAL(rfidOut(QList<rfidChangeInfo*>)));
+    connect(devRfid, SIGNAL(rfidFinish()), this, SIGNAL(rfidFinish()));
 
     //初始化锁控:波特率,数据位,奇偶校验,停止位
 //    com_lock_ctrler = new QSerialPort(DEV_LOCK_CTRL);
@@ -56,14 +87,44 @@ void DeviceManager::deviceInit()
 
     //初始化读卡器
     hid_card_reader = new QHid(this);
-    hid_card_reader->hidOpen(dev_path[0]);
+    if(!hid_card_reader->hidOpen(2303, 9))
+    {
+        if(!hid_card_reader->hidOpen(1534, 4130))
+        {
+            cardReaderState = false;
+            qDebug()<<"[CARD READER] open failed";
+        }
+        else
+        {
+            cardReaderState =  true;
+        }
+    }
+    else
+    {
+        cardReaderState =  true;
+    }
     connect(hid_card_reader, SIGNAL(hidRead(QByteArray)), this, SLOT(readCardReaderData(QByteArray)));
 
     //初始化扫码设备
     hid_code_scan = new QHid(this);
-    hid_code_scan->hidOpen(dev_path[1]);
-    connect(hid_code_scan, SIGNAL(hidRead(QByteArray)), this, SLOT(readCodeScanData(QByteArray)));
+    if(!hid_code_scan->hidOpen(1155, 17))
+    {
+        if(!hid_code_scan->hidOpen(8208, 30264))
+        {
+            qDebug()<<"[CODE SCAN] open failed";
+            scanState = false;
+        }
+        else
+        {
+            scanState = true;
+        }
+    }
+    else
+    {
+        scanState = true;
+    }
 
+    connect(hid_code_scan, SIGNAL(hidRead(QByteArray)), this, SLOT(readCodeScanData(QByteArray)));
 }
 
 
@@ -122,13 +183,16 @@ QextSerialPort* DeviceManager::comCtrlInit(QString devName, int baudRate, int da
 
 void DeviceManager::recvDoorState(bool isopen)
 {
+    qDebug()<<"recvDoorState"<<isopen;
     if(!isopen)
-        devRfid->startScan();
+//        devRfid->startScan();
+//    else
+        devRfid->scanOnce(1);
 }
 
 void DeviceManager::insertRfid(QStringList ids)
 {/*qDebug()<<"[insertRfid]"<<ids;*/
-    devRfid->insertRfid(ids);
+//    devRfid->insertRfid(ids);
 }
 
 void DeviceManager::test()
@@ -138,9 +202,24 @@ void DeviceManager::test()
 
 void DeviceManager::readLockCtrlData()
 {
-    ::usleep(20000);
+//    ::usleep(20000);
     QByteArray qba = com_lock_ctrl->readAll();
-    qDebug()<<"[readLockCtrlData]"<<qba.toHex();
+//    qDebug()<<"[readLockCtrlData]"<<qba.toHex();
+
+    if((qba.size() != 6) || (qba.at(0) != 0xfc) || (qba.at(5) != 0xff))
+        return;
+
+    bool curState = (qba.at(4) != 0x01);
+    if(curState != lockState)
+    {
+        lockState = curState;
+        emit doorStateChanged(lockState);
+        qDebug()<<"[DoorStateChanged]"<<lockState;
+        qDebug()<<qba.toHex();
+    }
+//    qDebug()<<"[readLockCtrlData]"<<qba.toHex();
+//    if(lockStateReq || lockState)
+//        getLockState();
 }
 
 void DeviceManager::readCardReaderData(QByteArray qba)
@@ -149,13 +228,12 @@ void DeviceManager::readCardReaderData(QByteArray qba)
     qba = upStr.toUpper().toLocal8Bit();
     qDebug()<<"[readCardReaderData]"<<qba;
     emit cardReaderData(QString(qba));
-    devRfid->startScan();
 }
 
 void DeviceManager::readCodeScanData(QByteArray qba)
 {
     qDebug()<<"[readCodeScanData]"<<qba;
-    emit codeScanData(qba);
+    emit codeScanData(QString(qba));
 }
 
 int DeviceManager::get_dev_info(char *dev_name,USBINFO* uInfo)
@@ -190,6 +268,31 @@ int DeviceManager::get_dev_info(char *dev_name,USBINFO* uInfo)
     close(fd);
     return 0;
 
+}
+
+void DeviceManager::openCabDoor()
+{
+    lockCtrl(0, 0);
+}
+
+void DeviceManager::lockCtrl(int seqNum, int ioNum)
+{
+    QByteArray qba = QByteArray::fromHex("fa000100ff");
+    qba[1] = seqNum;
+    qba[3] = ioNum;
+    qDebug()<<"[lockCtrl]"<<qba.toHex();
+#ifdef RUN_IN_ARM
+    com_lock_ctrl->write(qba);
+#endif
+}
+
+void DeviceManager::getLockState()
+{
+    QByteArray qba = QByteArray::fromHex("fa000200ff");
+//    qDebug()<<"[getLockState]"<<qba.toHex();
+#ifdef RUN_IN_ARM
+    com_lock_ctrl->write(qba);
+#endif
 }
 
 int DeviceManager::get_path(void)

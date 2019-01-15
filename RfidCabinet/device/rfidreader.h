@@ -17,7 +17,8 @@ class RfidReader : public QObject
     Q_OBJECT
 public:
     RfidReader(int address, QString dev, QObject* parent = NULL);
-    void rfidScan();
+    void rfidScan(int scanTimes);
+    void rfidFinish();
     void setReaderAddress(char address);
     QList<rfidChangeInfo *> getScanAddList();
     QList<rfidChangeInfo *> getScanDelList();
@@ -33,6 +34,7 @@ private:
     QTime scanTime;
     bool waitFlag;
     bool nextFlag;
+    bool finishFlag;
     int curAnt;
     int readerId;
     int fluctNum;

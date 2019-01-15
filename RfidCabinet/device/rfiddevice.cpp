@@ -24,9 +24,11 @@ RfidDevice::RfidDevice(QObject *parent) : QThread(parent)
 #endif
 //    CryptTables();				// 初始化hash
 //    RfidHash = inithashtable(MHI);
-    connect(reader, SIGNAL(scanFinished()), this, SLOT(rfidReadyread()));
+//    connect(reader, SIGNAL(scanFinished()), this, SLOT(rfidReadyread()));
+    connect(reader, SIGNAL(scanFinished()), this, SIGNAL(rfidFinish()));
 //    reader->setReaderAddress(0);
-    startScan();
+//    startScan();
+//    stopScan();
 }
 
 RfidDevice::~RfidDevice()
@@ -41,7 +43,7 @@ RfidDevice::~RfidDevice()
 void RfidDevice::startScan()
 {
     qDebug()<<"[startScan]";
-    reader->rfidScan();
+    reader->rfidScan(1);
 //    if(!this->isRunning())
 //        this->start();
 }
@@ -51,9 +53,16 @@ void RfidDevice::startScan()
 void RfidDevice::stopScan()
 {
     qDebug()<<"[stopScan]";
-    runFlag = false;
+    reader->rfidFinish();
+//    runFlag = false;
 //    this->quit();
-//    this->wait();
+    //    this->wait();
+}
+
+void RfidDevice::scanOnce(int times)
+{
+    reader->rfidScan(times);
+    reader->rfidFinish();
 }
 
 
@@ -163,7 +172,7 @@ void RfidDevice::rfidReadyread()
 
 void RfidDevice::insertRfid(QStringList list_id)
 {
-    manager_epc->initEpcHash(list_id);
+//    manager_epc->initEpcHash(list_id);
 //    QByteArray qba;
 //    QString str;
 

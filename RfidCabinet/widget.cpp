@@ -28,11 +28,20 @@ Widget::Widget(QWidget *parent) :
     connect(win_rfid, SIGNAL(rfidFetchReq(QList<rfidChangeInfo*>)), serverHttp, SLOT(rfidFetch(QList<rfidChangeInfo*>)));
     connect(win_rfid, SIGNAL(cabRegReq()), cabServer, SLOT(cabRegister()));
     connect(win_rfid, SIGNAL(updateServerAddress()), cabServer,SLOT(updateAddress()));
+    connect(win_rfid, SIGNAL(lockActive(bool)), devManager, SLOT(setLockActive(bool)));
+
     connect(cabServer, SIGNAL(regResult(bool)), win_rfid, SLOT(cabRegRst(bool)));
+    connect(cabServer, SIGNAL(loginRst(UserInfo*)), win_rfid, SLOT(usrLogRst(UserInfo*)));
+    connect(cabServer, SIGNAL(doorStareChanged(bool)), devManager, SLOT(recvDoorState(bool)));
+    connect(cabServer, SIGNAL(reqLockWarning(int)), devManager, SLOT(lockWarning(int)));
+
 
     connect(devManager, SIGNAL(rfidIn(QList<rfidChangeInfo*>)), win_rfid, SLOT(rfidIn(QList<rfidChangeInfo*>)));
-    connect(devManager,SIGNAL(rfidOut(QList<rfidChangeInfo*>)), win_rfid, SLOT(rfidOut(QList<rfidChangeInfo *>)));
+    connect(devManager, SIGNAL(rfidOut(QList<rfidChangeInfo*>)), win_rfid, SLOT(rfidOut(QList<rfidChangeInfo *>)));
     connect(devManager, SIGNAL(cardReaderData(QString)), cabServer, SLOT(userLogin(QString)));
+    connect(devManager, SIGNAL(codeScanData(QString)), cabServer, SLOT(listCheck(QString)));
+    connect(devManager, SIGNAL(rfidFinish()), cabServer, SLOT(rfidScanFinish()));
+
     connect(serverHttp, SIGNAL(newStoreList(QList<GoodsInfo*>)), win_rfid, SLOT(goodsIn(QList<GoodsInfo*>)));
     connect(serverHttp, SIGNAL(newFetchList(QList<GoodsInfo*>)), win_rfid, SLOT(goodsOut(QList<GoodsInfo*>)));
 

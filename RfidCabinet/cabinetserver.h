@@ -19,6 +19,7 @@
 #include "Structs/dayreportinfo.h"
 #include "Structs/caseaddress.h"
 #include "manager/cabinetmanager.h"
+#include "manager/epcmanager.h"
 #include "device/repertorymanager.h"
 #include "Widgets/cabinetcheckitem.h"
 #include "Widgets/cabinetstorelistitem.h"
@@ -33,9 +34,11 @@ public:
     bool initConfig();
     void waitForListTimeout();//等待送货车超时
     bool initcabManager();
+
 private:
     QNetworkAccessManager* manager;
     CabinetManager* cabManager;
+    EpcManager* epcManager;
     RepertoryManager* repManager;
 //    CabinetConfig* config;
     QNetworkReply* reply_register;
@@ -57,6 +60,7 @@ private:
     QNetworkReply* reply_day_report;
     CheckList* checkList;
     QString regId;
+    QString cabId;
     QString logId;
     QString barCode;
     QString ApiAddress;
@@ -74,15 +78,18 @@ private:
     int apiState;
     int fWatchdog;
     int checkId;//盘点返回id
+    int rfidStep;
     QList<QByteArray> list_access_cache;
-
+    QByteArray qba_store;
+    QByteArray qba_fetch;
 
     void checkTime();
     void checkSysTime(QDateTime _time);
-    void requireListState();//查询是否有送货单在途中
     void replyCheck(QNetworkReply* reply);
+    void checkGoodsList();
     void netTimeStart();
     void localCacheAccess();//提交本地缓存存取
+    void requireListState();//查询是否有送货单在途中  RFID API
     void accessLoop();
     QString getAbbName(QString fullName);
     void watchdogStart();
@@ -90,6 +97,7 @@ private:
 signals:
     void loginRst(UserInfo*);
     void listRst(GoodsList*);
+    void doorStareChanged(bool);
     void bindRst(bool);
     void goodsNumChanged(QString goodsId, int goodsNum);
     void updateGoodsPrice(float single, float total);
@@ -113,12 +121,15 @@ signals:
     void checkTables(QList<CheckTableInfo*>);
     void goodsReplyRst(bool success, QString msg);
     void dayReportRst(QList<DayReportInfo*>, QString msg);
+    void reqLockWarning(int times);
 
 public slots:
     void cabRegister();
     void getServerAddr(QString addr);
     void userLogin(QString);
-    void listCheck(QString);//送货单信息校验
+    void listCheck(QString);//送货单信息校验  RFID API
+    void rfidScanFinish();//扫描结束
+    void rfidAccess();
     void cabInfoUpload();//柜子信息上传
     void cabInfoReq();//柜子信息查询
     void cabCloneReq(QString oldCabinetId);//柜子克隆请求
@@ -126,7 +137,7 @@ public slots:
     void cabColInsert(int pos, int num);
     void cabinetBind(int, int, QString);
     void goodsAccess(CaseAddress, QString, int, int optType);
-    void listAccess(QStringList list, int optType);
+    void listAccess(QStringList list, int optType);//RFID API store:1  fetch:2 refund:3  rfidback:16
     void goodsCheckReq();
     void goodsCheckFinish();
     void goodsBack(QString);//退货
@@ -166,6 +177,7 @@ private slots:
     void recvDayReportInfo();
     void netTimeout();
     int watchdogTimeout();
+    void checkCabReg();
 };
 
 #endif // CABINETSERVER_H

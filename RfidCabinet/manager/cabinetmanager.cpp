@@ -65,7 +65,13 @@ QPoint CabinetManager::getCabCtrlWorld(QPoint caseAddr)
 
 QString CabinetManager::getServerAddress()
 {
-    return getConfig("ServerAddress", DEFAULT_SERVER).toString();
+    QString ret = getConfig("ServerAddress", QString()).toString();
+    if(ret.isEmpty())
+    {
+        ret = QString(DEFAULT_SERVER);
+        setConfig("ServerAddress", ret);
+    }
+    return ret;
 }
 
 QString CabinetManager::getCabinetId()
@@ -150,18 +156,24 @@ void CabinetManager::addUser(UserInfo* user)
 
 UserInfo *CabinetManager::checkUserLocal(QString userId)
 {
-    QSettings settings(FILE_CONFIG_CABINET_LAYOUT,QSettings::IniFormat);
     UserInfo* ret = NULL;
+    QSettings settings(FILE_CONFIG_CABINET_LAYOUT,QSettings::IniFormat);
+    int i = 0;
     settings.beginGroup(QString("Users"));
     int index = settings.beginReadArray("user");
-    for(int i=0; i< index; i++)
+
+    for(i=0; i<index; i++)
     {
-        settings.setArrayIndex(index);
+        settings.setArrayIndex(i);
+//        qDebug()<<userId<<settings.value("cardId", QString()).toString();
         if(userId == settings.value("cardId", QString()).toString())
         {
-            ret->cardId = settings.value("cardId", QString()).toString();
+            ret = new UserInfo;
+            qDebug()<<settings.value("name", QString()).toString();
             ret->name = settings.value("name", QString()).toString();
-            ret->power = settings.value("power", 0).toInt();
+            ret->power = settings.value("power", -1).toInt();
+            ret->cardId = settings.value("cardId", QString()).toString();
+            break;
         }
     }
     settings.endArray();
